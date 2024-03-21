@@ -4,19 +4,29 @@ import json
 import requests
 
 
-def get_location(url):
-    r = requests.post(url)
-    print (r)
+def get_latlng(API_KEY):
+    API_HOST = 'https://www.googleapis.com/geolocation/v1/'
+    url = f'{API_HOST}geolocate?key={API_KEY}'
+
     response = json.loads(requests.post(url).text)
-    lat = round(response['location']['lat'], 2)
-    lng = round(response['location']['lng'], 2)
+
+    lat = response['location']['lat']
+    lng = response['location']['lng']
+
     return lat, lng
 
+
+def get_location(lat, lng, API_KEY):
+    API_HOST = 'https://maps.googleapis.com/maps/api/geocode/'
+    url = f'{API_HOST}json?latlng={lat},{lng}&key={API_KEY}'
+    response = json.loads(requests.post(url).text)
+    print(response)
+    location=1
+    return location
+
 load_dotenv()
-geolocation_api = os.environ.get('GEOLOCATION_API_KEY')
+google_maps_api = os.environ.get('GEOLOCATION_API_KEY')
 
-API_KEY = geolocation_api
-API_HOST = 'https://www.googleapis.com/geolocation/v1/'
-url = f'{API_HOST}geolocate?key={API_KEY}'
-
-lat, lng = get_location(url)
+lat, lng = get_latlng(google_maps_api)
+print(lat,lng)
+location = get_location(lat, lng, google_maps_api)
