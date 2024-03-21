@@ -8,13 +8,13 @@
 {% endblock %}
 
 {% load static %}
-<!--insert css-->
+<!--insert js/css-->
 
 <body>
     <h1>Near shoku!</h1>
     current location is
-    <a id="currentLoactionLAT">&nbsp</a>
-    <a id="currentLoactionLNG">&nbsp</a>
+    <a id="currentLoactionLAT">{{lat}}</a>
+    <a id="currentLoactionLNG">{{lng}}</a>
 {% block body %}
 <!--body area-->
 {% endblock %}

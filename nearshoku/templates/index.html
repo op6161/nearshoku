@@ -8,14 +8,38 @@
 <script type="text/javascript">
 
 </script>
-    <div>
-        <button type="button" id="submitCurrentLocation">search by current location</button>
-    </div>
+    <form id="byCurrent" method="GET">
+        <div id="currentRange">
+            Searching Range:
+            <select id="selectCurrentLocationRange">
+                <option value="30d">300m</option>
+                <option value="50d">500m</option>
+                <option value="1k">1km</option>
+                <option value="2k">2km</option>
+                <option value="3k">3km</option>
+            </select>
+        </div>
+        <div>
+            <button type="button" name="submitCurrentLocation" id="submitCurrentLocation">search by current location</button>
+        </div>
+    </form>
 
     <h1>this page is index.html!</h1>
 
-    <div>
+    <div id="bySelected">
         <div id="selectMap">map</div>
-        <button type="button" id="submitSelectedLocation">search by selected location</button>
+        <div id="selectedRange">
+            Searching Range:
+            <select id="selectSelectedLocationRange">
+                <option value="30d">300m</option>
+                <option value="50d">500m</option>
+                <option value="1k">1km</option>
+                <option value="2k">2km</option>
+                <option value="3k">3km</option>
+            </select>
+        </div>
+        <div>
+            <button type="button" id="submitSelectedLocation">search by selected location</button>
+        </div>
     </div>
 {% endblock %}
