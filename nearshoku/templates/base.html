@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+{% block title %}
+<!--title area-->
+{% endblock %}
+
+{% load static %}
+<!--insert css-->
+
+<body>
+    <h1>Near shoku!</h1>
+    current location is
+    <a id="currentLoactionLAT">&nbsp</a>
+    <a id="currentLoactionLNG">&nbsp</a>
+{% block body %}
+<!--body area-->
+{% endblock %}
+</body>
+</html>
