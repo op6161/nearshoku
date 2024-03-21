@@ -54,7 +54,7 @@ ROOT_URLCONF = "nearshoku.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [f'{BASE_DIR}/templates'],  # set up template basedir
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
