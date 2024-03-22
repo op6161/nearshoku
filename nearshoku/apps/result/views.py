@@ -9,21 +9,27 @@ import requests
 # settings, tools
 def constant(func):
     '''
-        decorator constant for _Const Class
+        A decorator function for _Const Class
     '''
     def func_set(self, value):
+        '''
+            you can't edit constant
+        '''
         raise TypeError
 
     def func_get(self):
+        '''
+            you can use constant
+        '''
         return func()
     return property(func_get, func_set)
 
 class _Const(object):
     '''
-        a Class saving constants.
+        This Class is saving constants
     '''
     @constant
-    def GOOGLE_API():
+    def GOOGLE_API(): # is not err
         return 'GEOLOCATION_API_KEY'
 
     @constant
@@ -32,7 +38,7 @@ class _Const(object):
 
 def check_unicode(text):
     '''
-        replacing the str has unicode u3000 -> ' ' (space)
+        Replace the str has unicode u3000 -> ' ' (space)
 
         Args:
             text(str): the string that has unicode u3000
@@ -43,7 +49,7 @@ def check_unicode(text):
 
 def make_hash():
     '''
-        make hash key from current time
+        Make hash key from current time
 
         Returns: hash key (int)
     '''
@@ -68,17 +74,39 @@ def parsing_xml_to_json(xml_data):
     json_data = json.loads(json_dump)
     return json_data
 
+def model_form_save(item_list, form_model):
+    '''
+        Save the items into the modelform(db)
+
+        Args:
+            item_list(list): list of dict items
+            form_model(models.Model): model form in models.py
+    '''
+    object_bulk = [form_model(**item) for item in item_list]
+    form_model.objects.bulk_create(object_bulk)
+
+def combine_dictionary(dict1, dict2):
+    '''
+        Combine two dictionaries. but they should have different keys
+        * if dicts have same keys, it can update dict1's value without combining
+
+        Args:
+            dict1(dict)
+            dict2(dict)
+        Returns dictionary: dict1 + dict2
+    '''
+    dict1.update(dict2)
+    return dict1
+
 CONST = _Const() # const class using set
 
 # use API function
 def get_api(api_type):
     '''
-        a function for get protected key with python-dotenv
+        Get protected key with python-dotenv
 
         Args:
             api_type(str): a .env key for using API
-        Raises:
-            -
         Returns:
             api_key(str)
     '''
@@ -92,29 +120,28 @@ def get_api(api_type):
 
 def get_latlng(api_key):
     '''
-        get user's current lat/lng from google-geolocation
+        Get user's current lat/lng from google-geolocation
 
         Args:
             api_key(str): googlemaps API key
-        Raises:
-            -
         Returns:
-            lat, lng(float)
+            lat(float): user's current Latitude
+            lng(float): user's current Longitude
     '''
     API_HOST = 'https://www.googleapis.com/geolocation/v1/'
     url = f'{API_HOST}geolocate?key={api_key}'
 
-    response = json.loads(requests.post(url).text)
+    response_geolocate = json.loads(requests.post(url).text)
 
-    lat = response['location']['lat']
-    lng = response['location']['lng']
+    lat = response_geolocate['location']['lat']
+    lng = response_geolocate['location']['lng']
 
     return lat, lng
 
-
+# # # 구글맵과 연동 필요함
 def get_location(lat, lng, api_key):
     '''
-        get user's location for lat/lng from google-geocode API
+        Get user's location for lat/lng from google-geocode API
 
         Args:
             api_key(str): googlemaps API key
@@ -125,8 +152,8 @@ def get_location(lat, lng, api_key):
     '''
     API_HOST = 'https://maps.googleapis.com/maps/api/geocode/'
     url = f'{API_HOST}json?latlng={lat},{lng}&key={api_key}'
-    response = json.loads(requests.post(url).text)
-    return response
+    response_geocode = json.loads(requests.post(url).text)
+    return response_geocode
 
 
 def get_current_latlng():
@@ -137,7 +164,7 @@ def get_current_latlng():
     current_lat, current_lng = get_latlng(api_key)
     context = {'current_lat': current_lat, 'current_lng': current_lng}
     return context
-# 이 두 함수는 합치면 좋을 것 같다
+# # 이 두 함수는 조건부로 합치면 좋을 것 같다, view.result 같이 수정 필요함 주의
 def get_selected_latlng():
     '''
 
@@ -151,9 +178,19 @@ def get_selected_latlng():
     return context
 
 
-def get_shop_info(lat,lng,range):
+def load_shop_info(lat,lng,range,model_hash):
     '''
+        Load shop info from hotpepper API
 
+        Args:
+            lat(float): latitude
+            lng(float): longitude
+            range(int): range option
+            model_hash(int): a hash key made by make_hash()
+        Raises:
+            KeyError: 검색 결과가 없는 경우
+        Returns:
+            shop_info(list): list of dicts shop information
     '''
     api_key = get_api(CONST.RECRUIT_API)
     API_HOST = 'http://webservice.recruit.co.jp/hotpepper/gourmet/v1/'
@@ -163,10 +200,11 @@ def get_shop_info(lat,lng,range):
         'Accept': '*/*'
     }
     param = {
-        'key':f'{api_key}',
-        'lat':lat,
-        'lng':lng,
-        'range':range,
+        'key': f'{api_key}',
+        'lat': lat,
+        'lng': lng,
+        'range': range,
+        #'order':order, # order 거리순/권장순 변수 나중에 하자
         # 'format':'json'
     }
 
@@ -174,34 +212,28 @@ def get_shop_info(lat,lng,range):
     keys = param.keys()
     vals = param.values()
 
-    for key,val in zip(keys,vals):
-        if val:
-            query += f'{key}={val}&'
-        else:
-            query += f'{key}&'
-    url = API_HOST+query
+    for key, val in zip(keys, vals):
+        query += f'{key}={val}&'
+
+    url = API_HOST + query
 
     try:
-        response = requests.get(url, headers=headers)
+        hot_pepper_response = requests.get(url, headers=headers)
     except Exception:
-        print(Exception)
-    return response
+        raise Exception
 
+    shop_info_json = parsing_xml_to_json(hot_pepper_response)
+    try:
+        shop_info_json = shop_info_json['results']['shop'] #****
+    except KeyError:
+        # API의 한계로 일본 외의 나라에서는 사용할 수 없다
+        # 일본 내에서도 주변에 등록된 식당이 없다면 사용할 수 없을 것 같다
+        # >> keyError:'shop' 발생함
+        # 검색 결과가 없습니다 출력하면 좋을 듯 하다
+        raise KeyError
+    shop_info = []
 
-
-def load_shop_info(lat,lng,range,model_hash):
-    '''
-
-    '''
-    shop_info = get_shop_info(lat,lng,range)
-    shop_info = parsing_xml_to_json(shop_info)
-    shop_info = shop_info['results']['shop'] #****
-    # API의 한계로 일본 외의 나라에서는 사용할 수 없습니다
-    # 일본 내에서도 주변에 등록된 식당이 없다면 사용할 수 없을 것 같습니다
-    # >> keyError:'shop' 발생
-    shop_list = []
-
-    for shop in shop_info:
+    for shop in shop_info_json:
         temp = {
             'shop_id': shop['id'],
             'shop_name': check_unicode(shop['name']),
@@ -210,22 +242,11 @@ def load_shop_info(lat,lng,range,model_hash):
             'shop_thumbnail': shop['logo_image'],
             'shop_model_hash':model_hash
         }
-        shop_list.append(temp)
-    return shop_list
-
-def shop_form_save(item_list, form_model):
-    object_bulk = [form_model(**item) for item in item_list]
-    form_model.objects.bulk_create(object_bulk)
-
-
-def combine_dictionary(dict1, dict2):
-    '''
-        combine two dictionaries but, *they should have different keys*
-    '''
-    dict1.update(dict2)
-    return dict1
+        shop_info.append(temp)
+    return shop_info
 
 # views
+# # # 페이징 구현 이후 views.result 합치기
 def shop_show(request, cont1, model_hash):
     shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
     # # # # paging code
@@ -283,8 +304,8 @@ def result(request):
                         'current_lng':current_lng,
                         'range':range}
             model_hash = make_hash()
-            shop_list = load_shop_info(current_lat,current_lng,range,model_hash)
-            shop_form_save(shop_list, models.ShopInfoModel)
+            shop_info = load_shop_info(current_lat,current_lng,range,model_hash)
+            model_form_save(shop_info, models.ShopInfoModel)
             shop_show(request, contexts, model_hash)
 
             #### test code ####
