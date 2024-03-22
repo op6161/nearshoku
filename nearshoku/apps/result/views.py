@@ -22,7 +22,7 @@ def constant(func):
 
 class _Const(object):
     '''
-        A Class saving constants.
+        a Class saving constants.
     '''
     @constant
     def GOOGLE_API():
@@ -210,7 +210,7 @@ def index(request):
 
 def result(request):
     if request.method != 'POST':
-        return direction_error
+        return direction_error(request)
 
     current_latlng = get_current_latlng()
     current_lat = current_latlng['current_lat']
@@ -245,4 +245,4 @@ def result(request):
             return render(request, 'result.html', contexts)
 
     except:
-        return direction_error
+        return direction_error(request)
