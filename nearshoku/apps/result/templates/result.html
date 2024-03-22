@@ -6,12 +6,39 @@
 
 {% block body %}
 {% load static %}
-    <h1>this is result page !!!</h1>
-    {{range}}
+<h1>this is result page !!!</h1>
+<p>range!</p>
+{{range}}
 {% if selected_lat %}
     <h1>location selected!!!</h1>
     {{selected_lat}}
     {{selected_lng}}
 {% endif %}
+<div id="shops">
+    {% for shop in shop_list %}
+    <div>
+    <img src="{{shop.shop_thumbnail}}">
+    {{shop.shop_list_number}}
+    {{shop.shop_name}}
+    {{shop.shop_kana}}
+    {{shop.shop_access}}
+    </div>
+    <br>
+    -------------------------------
+    <br>
+    {% endfor %}
+</div>
+<div id="page">
+    <form method="post">
+    <p>here is page!</p>
+    {% for page in paginator.page_range %}
+    {% if page == page_obj.number %}
+        <li><a style="color:white;" href="?page={{page}}">{{page}}</a></li>
+    {% else %}
+        <li><a style="color:black;" href="?page={{page}}">{{page}}</a></li>
+    {% endif %}
+    {% endfor %}
 
+</form>
+</div>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 from . import models
 import json
 import requests
@@ -32,6 +33,15 @@ class _Const(object):
     def RECRUIT_API():
         return 'HOTPEPPER_API_KEY'
 
+
+def check_unicode(text):
+  return text.replace('\u3000',' ')
+
+
+def make_hash():
+    import time
+    key = time.time_ns()
+    return hash(key)
 
 CONST = _Const()
 
@@ -137,7 +147,7 @@ def get_shop_info(lat,lng,range):
 
     query = '?'
     keys = param.keys()
-    vals = params.values()
+    vals = param.values()
 
     for key,val in zip(keys,vals):
         if val:
@@ -150,7 +160,7 @@ def get_shop_info(lat,lng,range):
         response = requests.get(url, headers=headers)
     except Exception:
         print(Exception)
-    return shop_info
+    return response
 
 def parsing_xml_to_json(xml_data):
     '''
@@ -170,14 +180,19 @@ def parsing_xml_to_json(xml_data):
     return json_data
 
 
-def load_shop_list(lat,lng,range):
+def load_shop_info(lat,lng,range,model_hash):
     '''
 
     '''
     shop_info = get_shop_info(lat,lng,range)
     shop_info = parsing_xml_to_json(shop_info)
-    shop_info = shop_info['result']['shop']
+    # print(shop_info)
+    shop_info = shop_info['results']['shop'] #****
+    # API의 한계로 일본 외의 나라에서는 사용할 수 없습니다
+    # 일본 내에서도 주변에 등록된 식당이 없다면 사용할 수 없을 것 같습니다
+    # >> keyError:'shop' 발생
     shop_list = []
+
     for shop in shop_info:
         temp = {
             'shop_id': shop['id'],
@@ -185,20 +200,41 @@ def load_shop_list(lat,lng,range):
             'shop_kana': check_unicode(shop['name_kana']),
             'shop_access': check_unicode(shop['access']),
             'shop_thumbnail': shop['logo_image'],
+            'shop_model_hash':model_hash
         }
         shop_list.append(temp)
     return shop_list
 
 def shop_form_save(shop_list):
-    form = models.ShopInfoModel()
-    for idx, shop in enumerate(shop_list):
-        form.shop_list_number = idx
-        form.shop_id = shop['shop_id']
-        form.shop_name = shop['shop_name']
-        form.shop_kana = shop['shop_kana']
-        form.shop_access = shop['shop_access']
-        form.shop_thumbnail = shop['shop_thumbnail']
-        form.save(commit=False) # save to memory
+    object_bulk = [models.ShopInfoModel(**item) for item in shop_list]
+    models.ShopInfoModel.objects.bulk_create(object_bulk)
+
+
+def shop_show(request, cont1, model_hash):
+    PAGING_POST_NUMBER = 4
+    shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
+    # print(shop_list)
+    # page = request.GET.get('page')
+    # paginator = Paginator(shop_list, PAGING_POST_NUMBER)
+    # try:
+    #     page_object = paginator.page(page)
+    # except:
+    #     page=1
+    #     page_object = paginator.page(page)
+    # cont2 = {'shop_list': shop_list,
+    #      'page_object': page_object,
+    #      'paginator': paginator}
+    cont2 = {'shop_list':shop_list}#paging test
+    contexts = combine_dictionary(cont1,cont2)
+
+    return render(request, 'result.html', contexts )
+
+def combine_dictionary(dict1, dict2):
+    '''
+        combine two dictionaries but, *they should have different keys*
+    '''
+    dict1.update(dict2)
+    return dict1
 
 # views
 def direction_error(request):
@@ -209,25 +245,45 @@ def index(request):
     return render(request, 'result_index.html', current_latlng)
 
 def result(request):
-    if request.method != 'POST':
+    if request.method not in ['POST','GET']:
         return direction_error(request)
 
     current_latlng = get_current_latlng()
     current_lat = current_latlng['current_lat']
     current_lng = current_latlng['current_lng']
+    #### test code ####
+    current_lat = 34.67  # test value
+    current_lng = 135.52  # test value
+    range = 1  # test valeu
+    contexts = {'current_lat': current_lat,
+                'current_lng': current_lng,
+                'range': range}
 
+    if request.method == ['GET']:
+        shop_show(request, contexts)
+    ####################
     try :
         if request.POST['selectCurrentLocationRange']:
             range = request.POST['selectCurrentLocationRange']
+            #### test code ####
+            current_lat = 34.67 #test value
+            current_lng = 135.52 #test value
+            range = 1 # test valeu
             contexts = {'current_lat':current_lat,
                         'current_lng':current_lng,
                         'range':range}
+            model_hash = make_hash()
+            shop_list = load_shop_info(current_lat,current_lng,range,model_hash)
+            shop_form_save(shop_list)
+            shop_show(request, contexts, model_hash)
 
-
-
+            #### test code ####
+            # contexts = {'current_lat':current_lat,
+            #             'current_lng':current_lng,
+            #             'range':range}
             return render(request, 'result.html', contexts)
     except:
-        pass
+         pass
 
     try:
         if request.POST['selectSelectedLocationRange']:
@@ -239,9 +295,12 @@ def result(request):
                         'range': range,
                         'selected_lat':selected_lat,
                         'selected_lng': selected_lng,}
+            #### test code ####
 
 
 
+
+            #### test code ####
             return render(request, 'result.html', contexts)
 
     except:
