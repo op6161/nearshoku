@@ -5,11 +5,8 @@ from . import models
 import json
 import requests
 
-# settings
-# form_current = models.BycurrentModel()
-# form_selected = models.BySelectedModel()
-# form_current_data = {'form_current':form_current}
-# form_selected_data = {'form_selected':form_selected}
+
+# settings, tools
 def constant(func):
     '''
         decorator constant for _Const Class
@@ -33,19 +30,47 @@ class _Const(object):
     def RECRUIT_API():
         return 'HOTPEPPER_API_KEY'
 
-
 def check_unicode(text):
-  return text.replace('\u3000',' ')
+    '''
+        replacing the str has unicode u3000 -> ' ' (space)
 
+        Args:
+            text(str): the string that has unicode u3000
+        Returns:
+            text(str): the string that changed from u3000 to space
+    '''
+    return text.replace('\u3000',' ')
 
 def make_hash():
+    '''
+        make hash key from current time
+
+        Returns: hash key (int)
+    '''
     import time
     key = time.time_ns()
     return hash(key)
 
-CONST = _Const()
+def parsing_xml_to_json(xml_data):
+    '''
+        Parse the xml data into json format
 
-# use API
+        Args:
+             xml_data(requests.get():xml format)
+        Raises:
+            -
+        Returns:
+            json_data(requests.get().txt:json format)
+    '''
+    import xmltodict
+    xml_pars = xmltodict.parse(xml_data.text)
+    json_dump = json.dumps(xml_pars)
+    json_data = json.loads(json_dump)
+    return json_data
+
+CONST = _Const() # const class using set
+
+# use API function
 def get_api(api_type):
     '''
         a function for get protected key with python-dotenv
@@ -112,8 +137,7 @@ def get_current_latlng():
     current_lat, current_lng = get_latlng(api_key)
     context = {'current_lat': current_lat, 'current_lng': current_lng}
     return context
-
-
+# 이 두 함수는 합치면 좋을 것 같다
 def get_selected_latlng():
     '''
 
@@ -143,6 +167,7 @@ def get_shop_info(lat,lng,range):
         'lat':lat,
         'lng':lng,
         'range':range,
+        # 'format':'json'
     }
 
     query = '?'
@@ -162,22 +187,6 @@ def get_shop_info(lat,lng,range):
         print(Exception)
     return response
 
-def parsing_xml_to_json(xml_data):
-    '''
-        Parse the xml data into json format
-
-        Args:
-             xml_data(requests.get():xml format)
-        Raises:
-            -
-        Returns:
-            json_data(requests.get().txt:json format)
-    '''
-    import xmltodict
-    xml_pars = xmltodict.parse(xml_data.text)
-    json_dump = json.dumps(xml_pars)
-    json_data = json.loads(json_dump)
-    return json_data
 
 
 def load_shop_info(lat,lng,range,model_hash):
@@ -186,7 +195,6 @@ def load_shop_info(lat,lng,range,model_hash):
     '''
     shop_info = get_shop_info(lat,lng,range)
     shop_info = parsing_xml_to_json(shop_info)
-    # print(shop_info)
     shop_info = shop_info['results']['shop'] #****
     # API의 한계로 일본 외의 나라에서는 사용할 수 없습니다
     # 일본 내에서도 주변에 등록된 식당이 없다면 사용할 수 없을 것 같습니다
@@ -205,14 +213,23 @@ def load_shop_info(lat,lng,range,model_hash):
         shop_list.append(temp)
     return shop_list
 
-def shop_form_save(shop_list):
-    object_bulk = [models.ShopInfoModel(**item) for item in shop_list]
-    models.ShopInfoModel.objects.bulk_create(object_bulk)
+def shop_form_save(item_list, form_model):
+    object_bulk = [form_model(**item) for item in item_list]
+    form_model.objects.bulk_create(object_bulk)
 
 
+def combine_dictionary(dict1, dict2):
+    '''
+        combine two dictionaries but, *they should have different keys*
+    '''
+    dict1.update(dict2)
+    return dict1
+
+# views
 def shop_show(request, cont1, model_hash):
-    PAGING_POST_NUMBER = 4
     shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
+    # # # # paging code
+    # PAGING_POST_NUMBER = 4
     # print(shop_list)
     # page = request.GET.get('page')
     # paginator = Paginator(shop_list, PAGING_POST_NUMBER)
@@ -224,19 +241,11 @@ def shop_show(request, cont1, model_hash):
     # cont2 = {'shop_list': shop_list,
     #      'page_object': page_object,
     #      'paginator': paginator}
-    cont2 = {'shop_list':shop_list}#paging test
+    cont2 = {'shop_list':shop_list} # temp value for no paging
     contexts = combine_dictionary(cont1,cont2)
 
     return render(request, 'result.html', contexts )
 
-def combine_dictionary(dict1, dict2):
-    '''
-        combine two dictionaries but, *they should have different keys*
-    '''
-    dict1.update(dict2)
-    return dict1
-
-# views
 def direction_error(request):
     return HttpResponse('direction error')
 
@@ -252,29 +261,30 @@ def result(request):
     current_lat = current_latlng['current_lat']
     current_lng = current_latlng['current_lng']
     #### test code ####
-    current_lat = 34.67  # test value
-    current_lng = 135.52  # test value
+    current_lat = 34.67  #temp value for testing
+    current_lng = 135.52  #temp value for testing
     range = 1  # test valeu
     contexts = {'current_lat': current_lat,
                 'current_lng': current_lng,
                 'range': range}
 
     if request.method == ['GET']:
+        print('get으로 들어올 일이 있나용?')
         shop_show(request, contexts)
     ####################
     try :
         if request.POST['selectCurrentLocationRange']:
             range = request.POST['selectCurrentLocationRange']
             #### test code ####
-            current_lat = 34.67 #test value
-            current_lng = 135.52 #test value
-            range = 1 # test valeu
+            current_lat = 34.67 #temp value for testing
+            current_lng = 135.52 #temp value for testing
+            range = 1 #temp value for testing
             contexts = {'current_lat':current_lat,
                         'current_lng':current_lng,
                         'range':range}
             model_hash = make_hash()
             shop_list = load_shop_info(current_lat,current_lng,range,model_hash)
-            shop_form_save(shop_list)
+            shop_form_save(shop_list, models.ShopInfoModel)
             shop_show(request, contexts, model_hash)
 
             #### test code ####
@@ -288,8 +298,8 @@ def result(request):
     try:
         if request.POST['selectSelectedLocationRange']:
             range = request.POST['selectSelectedLocationRange']
-            selected_lat = 34.67 #temp value
-            selected_lng = 135.52 #temlp value
+            selected_lat = 34.67 #temp value for testing
+            selected_lng = 135.52 #temlp value for testing
             contexts = {'current_lat': current_lat,
                         'current_lng': current_lng,
                         'range': range,
