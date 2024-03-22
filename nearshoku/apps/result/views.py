@@ -221,7 +221,7 @@ def result(request):
             range = request.POST['selectCurrentLocationRange']
             contexts = {'current_lat':current_lat,
                         'current_lng':current_lng,
-                        'current_range':range}
+                        'range':range}
 
 
 
@@ -232,11 +232,11 @@ def result(request):
     try:
         if request.POST['selectSelectedLocationRange']:
             range = request.POST['selectSelectedLocationRange']
-            selected_lat = 1
-            selected_lng = 1
+            selected_lat = 34.67 #temp value
+            selected_lng = 135.52 #temlp value
             contexts = {'current_lat': current_lat,
                         'current_lng': current_lng,
-                        'current_range': range,
+                        'range': range,
                         'selected_lat':selected_lat,
                         'selected_lng': selected_lng,}
 
