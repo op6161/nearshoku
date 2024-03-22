@@ -8,7 +8,8 @@
 <script type="text/javascript">
 
 </script>
-    <form id="byCurrent" method="GET">
+    <form id="byCurrent" method="POST">
+        {% csrf_token %}
         <div id="currentRange">
             Searching Range:
             <select id="selectCurrentLocationRange">
@@ -20,7 +21,7 @@
             </select>
         </div>
         <div>
-            <button type="button" name="submitCurrentLocation" id="submitCurrentLocation">search by current location</button>
+            <a href="{% result %}" id="submitCurrentLocation">search by current location</a>
         </div>
     </form>
 

@@ -31,5 +31,4 @@ def get_location(lat, lng, api_key):
 
 google_maps_api = get_api('GEOLOCATION_API_KEY')
 lat, lng = get_latlng(google_maps_api)
-print(lat,lng)
 location = get_location(lat, lng, google_maps_api)

@@ -8,4 +8,10 @@ CONST = Const()
 def index(request):
     api_key = get_api(CONST.GOOGLE_API)
     current_lat, current_lng = get_latlng(api_key)
-    return render(request, 'index.html',{'current_lat':current_lat, 'current_lng':current_lng})
+    context = {'current_lat':current_lat, 'current_lng':current_lng}
+    return render(request, 'index.html', context)
+
+def result(request):
+    range = 1
+
+    return render(request, '')
