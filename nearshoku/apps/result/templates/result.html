@@ -6,6 +6,11 @@
 
 {% block body %}
 {% load static %}
-    <p>result!!!</p>
-
+    <h1>this is result page !!!</h1>
+    {{range}}
+{% if selected_lat %}
+    <h1>location selected!!!</h1>
+    {{selected_lat}}
+    {{selected_lng}}
+{% endif %}
 {% endblock %}
