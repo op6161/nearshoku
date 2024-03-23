@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="% static 'css/base.css' %">
+</head>
+{% block title %}
+<!--title area-->
+{% endblock %}
+<!--insert js/css-->
+<header>
+    <div class=''>
+        <h1>Near shoku!</h1>
+        <br>
+        current location is
+        <a id="currentLoactionLAT">{{current_lat}}</a>
+        <a id="currentLoactionLNG">{{current_lng}}</a>
+    </div>
+</header>
+{% block body %}
+<div class=".wrapper">
+    <!--body area-->
+</div>
+{% endblock %}
+</body>
+
+<footer>
+    Powered by <a href="http://webservice.recruit.co.jp/">ホットペッパーグルメ Webサービス</a>
+</footer>
+</html>

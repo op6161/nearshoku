@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}
+    <title>result title!</title>
+{% endblock %}
+
+{% block body %}
+{% load static %}
+<script type="text/javascript">
+
+</script>
+<div class="wrapper">
+    <form id="byCurrent" method="POST" action="result">
+        {% csrf_token %}
+        <div id="currentRange">
+            Searching Range:
+            <select name="selectCurrentLocationRange">
+                <option value="1">300m</option>
+                <option value="2">500m</option>
+                <option value="3">1km</option>
+                <option value="4">2km</option>
+                <option value="5">3km</option>
+            </select>
+<!--체크박스나 라디오버튼 등으로 order여부 구현 필요함-->
+<!--order value 4=권장순, others=거리순 -->
+<!--구현 이후 아래부분도 필요함-->
+        </div>
+        <div>
+            <input type="submit" id="submitCurrentLocation" value="search by current location">
+        </div>
+    </form>
+
+    <h1>this page is result_index.html!</h1>
+
+    <form id="bySelected" method="POST" action="result">
+        {% csrf_token %}
+<!--구글맵과 연동해서 원하는 좌표를 찍어내는 식으로 하고 싶은데 그거 넣는 영역 -->
+        <div id="selectMap">map</div>
+        <div id="selectedRange">
+            Searching Range:
+            <select name="selectSelectedLocationRange">
+                <option value="1">300m</option>
+                <option value="2">500m</option>
+                <option value="3">1km</option>
+                <option value="4">2km</option>
+                <option value="5">3km</option>
+            </select>
+        </div>
+        <div>
+            <input type="submit" id="submitSelectedLocation" value="search by selected location">
+        </div>
+    </form>
+</div>
+{% endblock %}
