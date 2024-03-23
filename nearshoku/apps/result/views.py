@@ -8,26 +8,26 @@ import requests
 
 # settings, tools
 def constant(func):
-    '''
+    """
         A decorator function for _Const Class
-    '''
+    """
     def func_set(self, value):
-        '''
+        """
             you can't edit constant
-        '''
+        """
         raise TypeError
 
     def func_get(self):
-        '''
+        """
             you can use constant
-        '''
+        """
         return func()
     return property(func_get, func_set)
 
 class _Const(object):
-    '''
+    """
         This Class is saving constants
-    '''
+    """
     @constant
     def GOOGLE_API(): # is not err
         return 'GEOLOCATION_API_KEY'
@@ -37,28 +37,28 @@ class _Const(object):
         return 'HOTPEPPER_API_KEY'
 
 def check_unicode(text):
-    '''
+    """
         Replace the str has unicode u3000 -> ' ' (space)
 
         Args:
             text(str): the string that has unicode u3000
         Returns:
             text(str): the string that changed from u3000 to space
-    '''
+    """
     return text.replace('\u3000',' ')
 
 def make_hash():
-    '''
+    """
         Make hash key from current time
 
         Returns: hash key (int)
-    '''
+    """
     import time
     key = time.time_ns()
     return hash(key)
 
 def parsing_xml_to_json(xml_data):
-    '''
+    """
         Parse the xml data into json format
 
         Args:
@@ -67,7 +67,7 @@ def parsing_xml_to_json(xml_data):
             -
         Returns:
             json_data(requests.get().txt:json format)
-    '''
+    """
     import xmltodict
     xml_pars = xmltodict.parse(xml_data.text)
     json_dump = json.dumps(xml_pars)
@@ -75,18 +75,18 @@ def parsing_xml_to_json(xml_data):
     return json_data
 
 def model_form_save(item_list, form_model):
-    '''
+    """
         Save the items into the modelform(db)
 
         Args:
             item_list(list): list of dict items
             form_model(models.Model): model form in models.py
-    '''
+    """
     object_bulk = [form_model(**item) for item in item_list]
     form_model.objects.bulk_create(object_bulk)
 
 def combine_dictionary(dict1, dict2):
-    '''
+    """
         Combine two dictionaries. but they should have different keys
         * if dicts have same keys, it can update dict1's value without combining
 
@@ -94,7 +94,7 @@ def combine_dictionary(dict1, dict2):
             dict1(dict)
             dict2(dict)
         Returns dictionary: dict1 + dict2
-    '''
+    """
     dict1.update(dict2)
     return dict1
 
@@ -102,14 +102,13 @@ CONST = _Const() # const class using set
 
 # use API function
 def get_api(api_type):
-    '''
+    """
         Get protected key with python-dotenv
-
         Args:
             api_type(str): a .env key for using API
         Returns:
             api_key(str)
-    '''
+    """
     from dotenv import load_dotenv
     import os
 
@@ -119,15 +118,14 @@ def get_api(api_type):
 
 
 def get_latlng(api_key):
-    '''
+    """
         Get user's current lat/lng from google-geolocation
-
         Args:
             api_key(str): googlemaps API key
         Returns:
             lat(float): user's current Latitude
             lng(float): user's current Longitude
-    '''
+    """
     API_HOST = 'https://www.googleapis.com/geolocation/v1/'
     url = f'{API_HOST}geolocate?key={api_key}'
 
@@ -164,7 +162,7 @@ def get_current_latlng():
     current_lat, current_lng = get_latlng(api_key)
     context = {'current_lat': current_lat, 'current_lng': current_lng}
     return context
-# # 이 두 함수는 조건부로 합치면 좋을 것 같다, view.result 같이 수정 필요함 주의
+# # 이 두 함수는 조건부로 합치면 좋을 것 같다 get latlng까지, view.result 같이 수정 필요함 주의
 def get_selected_latlng():
     '''
 
@@ -179,7 +177,7 @@ def get_selected_latlng():
 
 
 def load_shop_info(lat,lng,range,model_hash):
-    '''
+    """
         Load shop info from hotpepper API
 
         Args:
@@ -188,10 +186,10 @@ def load_shop_info(lat,lng,range,model_hash):
             range(int): range option
             model_hash(int): a hash key made by make_hash()
         Raises:
-            KeyError: 검색 결과가 없는 경우
+            KeyError: There is no search result
         Returns:
             shop_info(list): list of dicts shop information
-    '''
+    """
     api_key = get_api(CONST.RECRUIT_API)
     API_HOST = 'http://webservice.recruit.co.jp/hotpepper/gourmet/v1/'
     headers = {
@@ -248,6 +246,9 @@ def load_shop_info(lat,lng,range,model_hash):
 # views
 # # # 페이징 구현 이후 views.result 합치기
 def shop_show(request, cont1, model_hash):
+    '''
+
+    '''
     shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
     # # # # paging code
     # PAGING_POST_NUMBER = 4
@@ -268,13 +269,22 @@ def shop_show(request, cont1, model_hash):
     return render(request, 'result.html', contexts )
 
 def direction_error(request):
+    '''
+
+    '''
     return HttpResponse('direction error')
 
 def index(request):
+    '''
+
+    '''
     current_latlng = get_current_latlng()
     return render(request, 'result_index.html', current_latlng)
 
 def result(request):
+    '''
+
+    '''
     if request.method not in ['POST','GET']:
         return direction_error(request)
 
