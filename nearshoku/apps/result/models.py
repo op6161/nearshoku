@@ -24,7 +24,8 @@ class ShopInfoModel(BaseModel):
     shop_kana = models.CharField(max_length=100)
     shop_access = models.CharField(max_length=100)
     shop_thumbnail = models.ImageField()
-    shop_model_hash = models.CharField(max_length=50)
+    shop_model_hash = models.CharField(max_length=50) # To verify the shown data
+
 
 
 class UserInfoModel(BaseModel):
@@ -32,8 +33,9 @@ class UserInfoModel(BaseModel):
     A model-form to save user info
     '''
     user_model_hash = models.CharField(max_length=20)
-    user_current_lat = models.FloatField()
-    user_current_lng = models.FloatField()
-    user_selected_lat = models.FloatField()
-    user_selected_lng = models.FloatField()
-    user_range = models.IntegerField()
+    current_lat = models.FloatField()
+    current_lng = models.FloatField()
+    selected_lat = models.FloatField(null=True)
+    selected_lng = models.FloatField(null=True)
+    range = models.IntegerField()
+    order = models.BooleanField()

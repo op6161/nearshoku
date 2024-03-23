@@ -1,7 +1,7 @@
 def constant(func):
-    '''
+    """
         decorator constant for _Const Class
-    '''
+    """
     def func_set(self, value):
         raise TypeError
 
@@ -11,9 +11,9 @@ def constant(func):
 
 
 class Const(object):
-    '''
+    """
     A Class saving constants.
-    '''
+    """
     @constant
     def GOOGLE_API():
         return 'GEOLOCATION_API_KEY'
