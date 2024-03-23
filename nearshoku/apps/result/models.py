@@ -1,9 +1,24 @@
 from django.db import models
 
-class ShopInfoModel(models.Model):
-    '''
+
+class BaseModel(models.Model):
+    """
+    Base abstract model-form class with common methods
+    """
+    def save(self, *args, **kwargs):
+        """
+        A function to save modelform
+        """
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+
+class ShopInfoModel(BaseModel):
+    """
     A model-form to save shop info
-    '''
+    """
     shop_id = models.CharField(max_length=20)
     shop_name = models.CharField(max_length=100)
     shop_kana = models.CharField(max_length=100)
@@ -11,5 +26,14 @@ class ShopInfoModel(models.Model):
     shop_thumbnail = models.ImageField()
     shop_model_hash = models.CharField(max_length=50)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+
+class UserInfoModel(BaseModel):
+    '''
+    A model-form to save user info
+    '''
+    user_model_hash = models.CharField(max_length=20)
+    user_current_lat = models.FloatField()
+    user_current_lng = models.FloatField()
+    user_selected_lat = models.FloatField()
+    user_selected_lng = models.FloatField()
+    user_range = models.IntegerField()
