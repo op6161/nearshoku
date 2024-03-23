@@ -197,12 +197,29 @@ def load_shop_info(lat,lng,range,model_hash):
         'Accept': '*/*'
     }
     param = {
+        """
+        API parameters
+        
+        Params :
+            key : api_key
+            lat : latitude
+            lng : longitude
+            range : 1~5 : Search range from location(lat,lng)
+            order : 4 or other : Search base from recommendation/range
+                in this project, POST 'order' in True, False
+                so it must be translate True: 4 False: 0
+            count : 1~100 : result shop count (default 10)
+            format : 'json','xml' : data format (default xml)
+                in this project, parse xml to json has already been developed
+                so I use 'xml' format. But it is no better than using json format 
+        """
         'key': f'{api_key}',
         'lat': lat,
         'lng': lng,
         'range': range,
-        #'order':order, # order 거리순/권장순 변수 나중에 하자
-        # 'format':'json'
+        #'order':order,
+        'count':100,
+        'format':'xml',
     }
 
     query = '?'
@@ -317,13 +334,21 @@ def index(request):
 def result(request): # for test code # add code test num a1a1
     model_hash = cache.get('model_hash')
 
+    if request.POST.get('selectCurrentLocationRange') \
+    or request.POST.get('selectSelectedLocationRange'):
+        # 새로운 검색 요청을 받았을 때
+        print('result() debug: get POST')
+        model_hash = update_database(request)
+        return shop_show(request, model_hash)
+
     if model_hash is None:
-        print('is model hash none?')
+        print('result() debug: is model hash none')
+        # 새로운 검색 요청을 받았을 때, 분기 수정 후 발생하지 않고 있음
         model_hash = update_database(request)
         return shop_show(request, model_hash)
     else:
-        print('is active cache?')
-        print(cache.get('model_hash'))
+        # 페이지 이동 시 작동할 것으로 추정
+        print('result() debug: is model hash')
         return shop_show(request, model_hash)
 
 
@@ -369,72 +394,3 @@ def update_database(request):
         # context를 어떻게 집어넣어야 show가 가능하지? 해결
         # def result에서는 이제 정보 보내주기만 하면 될 듯 하다
 
-        # return model_hash
-
-
-def result_was(request):
-    '''
-
-    '''
-    if request.method not in ['POST','GET']:
-        return direction_error(request)
-
-    current_latlng = get_current_latlng()
-    current_lat = current_latlng['current_lat']
-    current_lng = current_latlng['current_lng']
-    #### test code ####
-    current_lat = 34.67  #temp value for testing
-    current_lng = 135.52  #temp value for testing
-    range = 1  # test valeu
-    contexts = {'current_lat': current_lat,
-                'current_lng': current_lng,
-                'range': range}
-    model_hash = make_hash()
-    if request.method == ['GET']:
-        print('get으로 들어올 일이 있나용?')
-        shop_show(request, contexts)
-    ####################
-    try :
-        if request.POST['selectCurrentLocationRange']:
-            range = request.POST['selectCurrentLocationRange']
-            #### test code ####
-            current_lat = 34.67 #temp value for testing
-            current_lng = 135.52 #temp value for testing
-            range = 1 #temp value for testing
-            contexts = {'current_lat':current_lat,
-                        'current_lng':current_lng,
-                        'range':range}
-            shop_info = load_shop_info(current_lat,current_lng,range,model_hash)
-
-
-            model_form_save(shop_info, models.ShopInfoModel)
-            shop_show(request, contexts, model_hash)
-
-            #### test code ####
-            # contexts = {'current_lat':current_lat,
-            #             'current_lng':current_lng,
-            #             'range':range}
-            return render(request, 'result.html', contexts)
-    except:
-         pass
-
-    try:
-        if request.POST['selectSelectedLocationRange']:
-            range = request.POST['selectSelectedLocationRange']
-            selected_lat = 34.67 #temp value for testing
-            selected_lng = 135.52 #temlp value for testing
-            contexts = {'current_lat': current_lat,
-                        'current_lng': current_lng,
-                        'range': range,
-                        'selected_lat':selected_lat,
-                        'selected_lng': selected_lng,}
-            #### test code ####
-
-
-
-
-            #### test code ####
-            return render(request, 'result.html', contexts)
-
-    except:
-        return direction_error(request)
