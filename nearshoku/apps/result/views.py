@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from django.core.cache import cache
 from . import models
 import json
 import requests
@@ -97,8 +98,6 @@ def combine_dictionary(dict1, dict2):
     return dict1
 
 CONST = _Const() # const class using set
-global model_hash # 세션으로 대체하면 좋을 것 같은데 일단 기능구현이 먼저라고 생각함
-model_hash = None
 
 # use API function
 def get_api(api_type):
@@ -228,7 +227,7 @@ def load_shop_info(lat,lng,range,model_hash):
         # 일본 내에서도 주변에 등록된 식당이 없다면 사용할 수 없을 것 같다
         # >> keyError:'shop' 발생함
         # 검색 결과가 없습니다 출력하면 좋을 듯 하다
-        raise KeyError
+        raise 404
 
     shop_info = []
 
@@ -277,8 +276,12 @@ def shop_show(request, model_hash):
     '''
 
     '''
-    shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
-    user_info = models.UserInfoModel.objects.get(user_model_hash=model_hash) # add code test num a1a1
+    try:
+        shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
+        user_info = models.UserInfoModel.objects.get(user_model_hash=model_hash) # add code test num a1a1
+    except:
+        raise "Cache Lost Error"
+
     # # # # paging code
     # PAGING_POST_NUMBER = 4
     # print(shop_list)
@@ -312,11 +315,15 @@ def index(request):
 
 
 def result(request): # for test code # add code test num a1a1
-    global model_hash
+    model_hash = cache.get('model_hash')
+
     if model_hash is None:
-        update_database(request)
+        print('is model hash none?')
+        model_hash = update_database(request)
         return shop_show(request, model_hash)
     else:
+        print('is active cache?')
+        print(cache.get('model_hash'))
         return shop_show(request, model_hash)
 
 
@@ -324,11 +331,13 @@ def update_database(request):
     '''
     A function that save models by POST vals
     '''
-    global model_hash
-    order = 1 #temp value
     model_hash = make_hash()
+    cache.set('model_hash', model_hash)
     selected_lat = None
     selected_lng = None
+
+    order = 1  # temp value
+
     if request.method == 'POST':
         # save user info
         current_latlng = get_current_latlng()
@@ -349,13 +358,14 @@ def update_database(request):
             lng = selected_lng
         else:
             raise 'Direction Error'
+
         user_info = load_user_info(range, order, model_hash, current_lat, current_lng, selected_lat, selected_lng)
         model_form_save(user_info,models.UserInfoModel)
 
         # save shop info to show
         shop_info = load_shop_info(lat,lng,range,model_hash)
         model_form_save(shop_info, models.ShopInfoModel)
-
+    return model_hash
         # context를 어떻게 집어넣어야 show가 가능하지? 해결
         # def result에서는 이제 정보 보내주기만 하면 될 듯 하다
 

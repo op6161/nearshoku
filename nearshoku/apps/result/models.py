@@ -25,6 +25,9 @@ class ShopInfoModel(BaseModel):
     shop_access = models.CharField(max_length=100)
     shop_thumbnail = models.ImageField()
     shop_model_hash = models.CharField(max_length=50) # To verify the shown data
+    # shop_is_current = models.BooleanField()
+    # 뒤로가기로 돌아가서 current/selected를 누르면 동일한 결과가 출력된다
+    # 검증을 위한 데이터 추가가 필요
 
 
 
