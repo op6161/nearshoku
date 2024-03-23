@@ -168,7 +168,7 @@ def get_selected_latlng():
     '''
     api_key = get_api(CONST.GOOGLE_API)
     current_lat, current_lng = get_latlng(api_key)
-    selected_lat, selected_lng = 1,1
+    selected_lat, selected_lng = 1, 1 #
     context = {
         'current_lat': current_lat, 'current_lng': current_lng,
         'selected_lat': selected_lat, 'selected_lng': selected_lng}
@@ -185,7 +185,7 @@ def load_shop_info(lat,lng,range,model_hash):
             range(int): range option
             model_hash(int): a hash key made by make_hash()
         Raises:
-            KeyError: There is no search result
+            KeyError: Is no search result
         Returns:
             shop_info(list): list of dicts shop information
     '''
@@ -217,9 +217,9 @@ def load_shop_info(lat,lng,range,model_hash):
         'lat': lat,
         'lng': lng,
         'range': range,
-        #'order':order,
-        'count':100,
-        'format':'xml',
+        #'order': order,
+        'count': 100,
+        'format': 'xml',
     }
 
     query = '?'
@@ -270,13 +270,13 @@ def load_user_info(range,order,model_hash,current_lat,
     user_info = []
     for user in user_info_json: #template for modularize
         temp = {
-            'user_model_hash':model_hash,
-            'current_lat':current_lat,
-            'current_lng':current_lng,
-            'selected_lat':selected_lat,
-            'selected_lng':selected_lng,
-            'range':range,
-            'order':order,
+            'user_model_hash': model_hash,
+            'current_lat': current_lat,
+            'current_lng': current_lng,
+            'selected_lat': selected_lat,
+            'selected_lng': selected_lng,
+            'range': range,
+            'order': order,
         }
         user_info.append(temp)
     return user_info
