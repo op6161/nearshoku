@@ -32,7 +32,6 @@ class ShopDetailModel(BaseModel):
     """
     #
     detail_shop_id = models.CharField(max_length=20)
-    #여기도 모델 해시가 필요한지는 모르겠군
     # 필수
     detail_name = models.CharField(max_length=100)
     detail_address = models.CharField(max_length=100)

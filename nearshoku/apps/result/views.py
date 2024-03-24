@@ -25,6 +25,7 @@ def constant(func):
         return func()
     return property(func_get, func_set)
 
+
 class _Const(object):
     """
     This Class is saving constants
@@ -36,6 +37,7 @@ class _Const(object):
     @constant
     def RECRUIT_API():
         return 'HOTPEPPER_API_KEY'
+
 
 def check_unicode(text):
     """
@@ -50,6 +52,7 @@ def check_unicode(text):
         return None
     return text.replace('\u3000', ' ')
 
+
 def make_hash():
     """
     Make hash key from current time
@@ -59,6 +62,7 @@ def make_hash():
     import time
     key = time.time_ns()
     return hash(key)
+
 
 def parsing_xml_to_json(xml_data):
     """
@@ -75,6 +79,7 @@ def parsing_xml_to_json(xml_data):
     json_data = json.loads(json_dump)
     return json_data
 
+
 def model_form_save(item_list, form_model):
     """
     Save the items into the modelform(db)
@@ -85,6 +90,7 @@ def model_form_save(item_list, form_model):
     """
     object_bulk = [form_model(**item) for item in item_list]
     form_model.objects.bulk_create(object_bulk)
+
 
 def combine_dictionary(dict1, dict2):
     """
@@ -99,10 +105,19 @@ def combine_dictionary(dict1, dict2):
     dict1.update(dict2)
     return dict1
 
-CONST = _Const() # const class using set
-shop_info_model_form = models.ShopInfoModel
-user_info_model_form = models.UserInfoModel
-shop_detail_model_form = models.ShopDetailModel
+
+# ----- settings ----- #
+# const class using set
+CONST = _Const()
+# model form using set
+SHOP_INFO_MODEL_FORM = models.ShopInfoModel
+USER_INFO_MODEL_FORM = models.UserInfoModel
+SHOP_DETAIL_MODEL_FORM = models.ShopDetailModel
+# shop_info_model_form = models.ShopInfoModel
+# user_info_model_form = models.UserInfoModel
+# shop_detail_model_form = models.ShopDetailModel
+# ----- -------- ----- #
+
 
 # use API function
 def get_api(api_type):
@@ -220,13 +235,11 @@ def hot_pepper_api(**kwargs):
 
     return shop_info_json
 
+
 def info_pack(info_json, model_form,model_hash=None):
-    print(f"info_json 타입 {type(info_json)}")
     info_package = []
-    if model_form == shop_detail_model_form:
+    if model_form == SHOP_DETAIL_MODEL_FORM:
         for shop in info_json:
-            print('infojson@')
-            print(shop)
             model_template = {
                 # 필수요구
                 'detail_shop_id': shop['id'],
@@ -244,7 +257,7 @@ def info_pack(info_json, model_form,model_hash=None):
                 'detail_card': ['card'],
             }
             info_package.append(model_template)
-    elif model_form == shop_info_model_form:
+    elif model_form == SHOP_INFO_MODEL_FORM:
         for shop in info_json:
             model_template = {
                 'shop_id': shop['id'],
@@ -257,12 +270,7 @@ def info_pack(info_json, model_form,model_hash=None):
             info_package.append(model_template)
 
     return info_package
-#------=-=-=-=-=-=-=-=-=-=---------#
-# shop_info_json = hot_pepper_api(lat=lat,lng=lng,range=range,count=100)#나중에추가order=order
-# shop_info = info_pack(shop_info_json, models.ShopInfoModel)
-# detail_info_json = hot_pepper_api(id=shop_id)
-# detail_info = info_pack(detail_info_json, models.ShopDetailModel)
-#------=-=-=-=-=-=-=-=-=-=---------#
+
 
 # 두 함수는 return은 다르지만 args가 중복되니 기능을 합칠 수 잇어보인다
 # API 호출을 분리시키면 될 듯
@@ -287,12 +295,6 @@ def load_user_info(range,order,model_hash,current_lat,
     return user_info
 
 
-# # # using
-# if selected_lat:
-#     load_user_info(range,order,model_hash,current_lat,current_lng,selected_lat,selected_lng)
-# else:
-#     load_user_info(range, order, model_hash, current_lat, current_lng)
-
 # views
 # # # 페이징 구현 이후 views.result 합치기
 def shop_show(request, model_hash, **kwargs):
@@ -301,8 +303,8 @@ def shop_show(request, model_hash, **kwargs):
     '''
     try:
         # load shop/user info from database by model_hash
-        shop_list = shop_info_model_form.objects.filter(shop_model_hash=model_hash)
-        user_info = user_info_model_form.objects.get(user_model_hash=model_hash)
+        shop_list = SHOP_INFO_MODEL_FORM.objects.filter(shop_model_hash=model_hash)
+        user_info = USER_INFO_MODEL_FORM.objects.get(user_model_hash=model_hash)
     except:
         # model_hash changed
         raise "Cache Lost Error"
@@ -421,12 +423,12 @@ def update_database(request):
             raise 'Direction Error in update_database'
 
         user_info = load_user_info(range, order, model_hash, current_lat, current_lng, selected_lat, selected_lng)
-        model_form_save(user_info, user_info_model_form)
+        model_form_save(user_info, USER_INFO_MODEL_FORM)
 
         # save shop info to show
-        shop_info_json = hot_pepper_api(lat=lat,lng=lng,range=range,count=100)#나중에추가order=order
-        shop_info = info_pack(shop_info_json, shop_info_model_form,model_hash)
-        model_form_save(shop_info, shop_info_model_form)
+        shop_info_json = hot_pepper_api(lat=lat, lng=lng, range=range, count=100)#나중에추가order=order
+        shop_info = info_pack(shop_info_json, SHOP_INFO_MODEL_FORM, model_hash)
+        model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
     return model_hash
 
 
@@ -434,12 +436,12 @@ def detail(request):
     if request.method == 'GET':
         shop_id = request.GET.get('shop_id')
         detail_info_json = hot_pepper_api(id=shop_id)
-        detail_info = info_pack([detail_info_json], shop_detail_model_form)
-        if not shop_detail_model_form.objects.filter(detail_shop_id=shop_id).exists():
+        detail_info = info_pack([detail_info_json], SHOP_DETAIL_MODEL_FORM)
+        if not SHOP_DETAIL_MODEL_FORM.objects.filter(detail_shop_id=shop_id).exists():
             # 데이터 중복 저장 시 오류 발생으로
             # 이미 있는 데이터는 저장하지 않음
-            model_form_save(detail_info, shop_detail_model_form) #데이터 중복 오류 발생
+            model_form_save(detail_info, SHOP_DETAIL_MODEL_FORM) #데이터 중복 오류 발생
 
-        detail_info = shop_detail_model_form.objects.get(detail_shop_id=shop_id)
+        detail_info = SHOP_DETAIL_MODEL_FORM.objects.get(detail_shop_id=shop_id)
         contexts = detail_info.__dict__
         return render(request,'result_detail.html',contexts)
