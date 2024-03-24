@@ -335,7 +335,7 @@ def shop_show(request, model_hash, **kwargs):
         'shop_list': shop_list,
         'page_object': page_object,
         'paginator': paginator,
-        'len_page_objects': len(page_object),
+        'len_page_objects': len(page_object)*page_object.number,
         'len_shop_list': len(shop_list),
     }
 

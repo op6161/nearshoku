@@ -1,31 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="% static 'css/base.css' %">
-</head>
-{% block title %}
-<!--title area-->
-{% endblock %}
-<!--insert js/css-->
-<header>
-    <div class=''>
-        <h1>Near shoku!</h1>
-        <br>
-        current location is
-        <a id="currentLoactionLAT">{{current_lat}}</a>
-        <a id="currentLoactionLNG">{{current_lng}}</a>
-    </div>
-</header>
-{% block body %}
-<div class=".wrapper">
-    <!--body area-->
-</div>
-{% endblock %}
-</body>
+    {% include 'head.html' %}
+    <div class="bg-dark">
+        <div class="container h-100 w-100 p-3 d-inline-block">
+            {% block title %}
+                <!--title area-->
+            {% endblock %}
 
-<footer>
-    Powered by <a href="http://webservice.recruit.co.jp/">ホットペッパーグルメ Webサービス</a>
-</footer>
+            {% block header %}
+                {% include 'header.html' %}
+            {% endblock %}
+
+            <div class=""></div>
+
+            {% block body %}
+
+                <!--body area-->
+
+            {% endblock %}
+            <hr class="line">
+
+            {% include 'footer.html' %}
+        </div>
+    </div>
 </html>

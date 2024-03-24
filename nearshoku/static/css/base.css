@@ -1,19 +1,8 @@
-.wrapper{
-    height:auto;
-    min-height:100%;
-    position: relative;
-    padding-bottom:10px;
-    padding-top:50px;
+.pink-line{
+    background:pink;
+    height:1px;
+    border:0;
 }
-body {
-    height:100%;
-}
-header {
-    /*position:relative;*/
-}
-footer {
-    /*footer(credit)를 바닥에 고정해야 되는데 내용이 없으면 고정이 안됨*/
-    height: 10px;
-    position: relative;
-    transform: translateY(-100%);
+.location-box{
+
 }
