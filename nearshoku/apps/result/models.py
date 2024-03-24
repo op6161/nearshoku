@@ -33,7 +33,6 @@ class ShopDetailModel(BaseModel):
     #
     detail_shop_id = models.CharField(max_length=20)
     #여기도 모델 해시가 필요한지는 모르겠군
-    detail_model_hash = models.CharField(max_length=50)  # To verify the shown data
     # 필수
     detail_name = models.CharField(max_length=100)
     detail_address = models.CharField(max_length=100)
@@ -42,7 +41,8 @@ class ShopDetailModel(BaseModel):
     #추가정보
     detail_kana = models.CharField(max_length=100)
     detail_access = models.CharField(max_length=100)
-    detail_keyword = models.CharField(max_length=100)
+    detail_shop_memo = models.CharField(max_length=100,null=True)
+    detail_budget_memo = models.CharField(max_length=100,null=True)
     detail_lat = models.FloatField()
     detail_lng = models.FloatField()
     detail_url = models.CharField(max_length=100) # urls:pc

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>result_detail title!</title>
+{% endblock %}
+
+{% block body %}
+{% load static %}
+<div class="wrapper">
+    <h1>this is detail page !!!</h1>
+    <div class="return">
+        <button>
+            목록
+        </button>
+    </div>
+    <h1>필수정보</h1>
+    매장이름:
+    {{ detail_name }}<br>
+    주소:
+    {{ detail_address }}<br>
+    영업시간:
+    {{ detail_time }}<br>
+    매장사진:
+    <img src="{{ detail_image }}"><br>
+    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-<br>
+    <h1>추가정보</h1>>
+    이름카나
+    {{ detail_kana }}<br>
+    액세스
+    {{ detail_access }}<br>
+    키워드
+    {{ detail_keyword }}<br>
+    매장위치
+    {{ detail_lat }} / {{ detail_lng }}<br>
+    매장홈페이지
+    {{ detail_url }}<br>
+</div>
+{% endblock %}

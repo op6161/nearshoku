@@ -35,6 +35,10 @@
                 {{shop.shop_kana}}
                 {{shop.shop_access}}
             </div>
+            <form method="get" action='detail'>
+                <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
+                <input type="submit" value="show detail">
+            </form>
             <br>
             -------------------------------
             <!--너무 허접하니까 제대로 만들 것-->
