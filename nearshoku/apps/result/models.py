@@ -17,7 +17,7 @@ class BaseModel(models.Model):
 
 class ShopInfoModel(BaseModel):
     """
-    A model-form to save shop info
+    A model-form to save shop info to show on result field
     """
     shop_id = models.CharField(max_length=20)
     shop_name = models.CharField(max_length=100)
@@ -25,6 +25,28 @@ class ShopInfoModel(BaseModel):
     shop_access = models.CharField(max_length=100)
     shop_thumbnail = models.ImageField()
     shop_model_hash = models.CharField(max_length=50) # To verify the shown data
+
+class ShopDetailModel(BaseModel):
+    """
+    A model-form to save shop info to show on detail field
+    """
+    #
+    detail_shop_id = models.CharField(max_length=20)
+    #여기도 모델 해시가 필요한지는 모르겠군
+    detail_model_hash = models.CharField(max_length=50)  # To verify the shown data
+    # 필수
+    detail_name = models.CharField(max_length=100)
+    detail_address = models.CharField(max_length=100)
+    detail_image = models.ImageField() # photo:pc:l/m/s
+    detail_time = models.CharField(max_length=100) #open
+    #추가정보
+    detail_kana = models.CharField(max_length=100)
+    detail_access = models.CharField(max_length=100)
+    detail_keyword = models.CharField(max_length=100)
+    detail_lat = models.FloatField()
+    detail_lng = models.FloatField()
+    detail_url = models.CharField(max_length=100) # urls:pc
+    detail_card = models.CharField(max_length=10)
 
 
 
