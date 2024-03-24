@@ -30,7 +30,7 @@ class _Const(object):
     This Class is saving constants
     """
     @constant
-    def GOOGLE_API(): # is not err
+    def GOOGLE_API():
         return 'GEOLOCATION_API_KEY'
 
     @constant
@@ -46,7 +46,7 @@ def check_unicode(text):
     Returns:
         text(str): the string that changed from u3000 to space
     """
-    return text.replace('\u3000',' ')
+    return text.replace('\u3000', ' ')
 
 def make_hash():
     """
@@ -196,31 +196,32 @@ def load_shop_info(lat,lng,range,model_hash):
         'charset': 'UTF-8',
         'Accept': '*/*'
     }
+
     param = {
-        """
-        API parameters
-        
-        Params :
-            key : api_key
-            lat : latitude
-            lng : longitude
-            range : 1~5 : Search range from location(lat,lng)
-            order : 4 or other : Search base from recommendation/range
-                in this project, POST 'order' in True, False
-                so it must be translate True: 4 False: 0
-            count : 1~100 : result shop count (default 10)
-            format : 'json','xml' : data format (default xml)
-                in this project, parse xml to json has already been developed
-                so I use 'xml' format. But it is no better than using json format 
-        """
         'key': f'{api_key}',
         'lat': lat,
         'lng': lng,
         'range': range,
         #'order': order,
         'count': 100,
-        'format': 'xml',
+        # 'format': 'xml',
     }
+    """
+    API parameters
+
+    Params :
+        key : api_key
+        lat : latitude
+        lng : longitude
+        range : 1~5 : Search range from location(lat,lng)
+        order : 4 or other : Search base from recommendation/range
+            in this project, POST 'order' in True, False
+            so it must be translate True: 4 False: 0
+        count : 1~100 : result shop count (default 10)
+        format : 'json','xml' : data format (default xml)
+            in this project, parse xml to json has already been developed
+            so I use 'xml' format. But it is no better than using json format 
+    """
 
     query = '?'
     keys = param.keys()
@@ -249,7 +250,7 @@ def load_shop_info(lat,lng,range,model_hash):
     shop_info = []
 
     for shop in shop_info_json:
-        temp = {
+        model_template = {
             'shop_id': shop['id'],
             'shop_name': check_unicode(shop['name']),
             'shop_kana': check_unicode(shop['name_kana']),
@@ -257,8 +258,10 @@ def load_shop_info(lat,lng,range,model_hash):
             'shop_thumbnail': shop['logo_image'],
             'shop_model_hash':model_hash
         }
-        shop_info.append(temp)
+        shop_info.append(model_template)
     return shop_info
+
+
 # 두 함수는 return은 다르지만 args가 중복되니 기능을 합칠 수 잇어보인다
 # API 호출을 분리시키면 될 듯
 def load_user_info(range,order,model_hash,current_lat,
@@ -269,7 +272,7 @@ def load_user_info(range,order,model_hash,current_lat,
     user_info_json = [True] # default
     user_info = []
     for user in user_info_json: #template for modularize
-        temp = {
+        model_template = {
             'user_model_hash': model_hash,
             'current_lat': current_lat,
             'current_lng': current_lng,
@@ -278,8 +281,9 @@ def load_user_info(range,order,model_hash,current_lat,
             'range': range,
             'order': order,
         }
-        user_info.append(temp)
+        user_info.append(model_template)
     return user_info
+
 
 # # # using
 # if selected_lat:
@@ -289,33 +293,54 @@ def load_user_info(range,order,model_hash,current_lat,
 
 # views
 # # # 페이징 구현 이후 views.result 합치기
-def shop_show(request, model_hash):
+def shop_show(request, model_hash, **kwargs):
     '''
 
     '''
+
     try:
+        # load shop/user info from database by model_hash
         shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
-        user_info = models.UserInfoModel.objects.get(user_model_hash=model_hash) # add code test num a1a1
+        user_info = models.UserInfoModel.objects.get(user_model_hash=model_hash)
     except:
+        # model_hash changed
         raise "Cache Lost Error"
 
-    # # # # paging code
-    # PAGING_POST_NUMBER = 4
-    # print(shop_list)
-    # page = request.GET.get('page')
-    # paginator = Paginator(shop_list, PAGING_POST_NUMBER)
-    # try:
-    #     page_object = paginator.page(page)
-    # except:
-    #     page=1
-    #     page_object = paginator.page(page)
-    # cont2 = {'shop_list': shop_list,
-    #      'page_object': page_object,
-    #      'paginator': paginator}
-    cont1 = user_info.__dict__ # add code test num a1a1
-    cont2 = {'shop_list':shop_list} # temp value for no paging
-    contexts = combine_dictionary(cont1,cont2)
-    return render(request, 'result.html', contexts )
+    # paging =================================
+    if kwargs.get('page'):
+        # if got page number from request.GET['page']
+        page = kwargs['page']
+    else:
+        # default page number
+        page = 1
+
+    PAGING_POST_NUMBER = 10  # page 마다 출력 상점 수
+    paginator = Paginator(shop_list, PAGING_POST_NUMBER)
+    try:
+        page_object = paginator.page(page)
+    except:
+        # invalid page number
+        # it has url print err
+        page = paginator.num_pages
+        page_object = paginator.page(page)
+    # ========================================
+
+    # *cont1: {user info}
+    cont1 = user_info.__dict__
+    # *cont2: {shop info, page info}
+    cont2 = {
+        'shop_list': shop_list,
+        'page_object': page_object,
+        'paginator': paginator,
+        'len_page_objects': len(page_object),
+        'len_shop_list': len(shop_list),
+    }
+
+    # *contexts: {user info, shop info, page info}
+    contexts = combine_dictionary(cont1, cont2)
+
+    return render(request, 'result.html', contexts)
+
 
 def direction_error(request):
     '''
@@ -334,21 +359,33 @@ def index(request):
 def result(request): # for test code # add code test num a1a1
     model_hash = cache.get('model_hash')
 
-    if request.POST.get('selectCurrentLocationRange') \
-    or request.POST.get('selectSelectedLocationRange'):
-        # 새로운 검색 요청을 받았을 때
-        print('result() debug: get POST')
+    if request.method == 'GET':
+        # get GET method (move page)
+        print('result() debug: GET method')
+        page = request.GET.get('page')
+        return shop_show(request, model_hash, page=page)
+    elif request.method == 'POST':
+    # if request.POST.get('selectCurrentLocationRange') \
+    #         or request.POST.get('selectSelectedLocationRange'):
+        # get POST method (new search request)
+        print('result() debug: POST method')
         model_hash = update_database(request)
         return shop_show(request, model_hash)
 
+    print('*' * 10)
+    print('*' * 10)
+    print('active this code??')
+    print('*' * 10)
+    print('*' * 10)
+
     if model_hash is None:
-        print('result() debug: is model hash none')
+        print('result() debug: model hash isNone')
         # 새로운 검색 요청을 받았을 때, 분기 수정 후 발생하지 않고 있음
         model_hash = update_database(request)
         return shop_show(request, model_hash)
     else:
         # 페이지 이동 시 작동할 것으로 추정
-        print('result() debug: is model hash')
+        print('result() debug: model_hash is True')
         return shop_show(request, model_hash)
 
 
@@ -382,7 +419,7 @@ def update_database(request):
             lat = selected_lat
             lng = selected_lng
         else:
-            raise 'Direction Error'
+            raise 'Direction Error in update_database'
 
         user_info = load_user_info(range, order, model_hash, current_lat, current_lng, selected_lat, selected_lng)
         model_form_save(user_info,models.UserInfoModel)
