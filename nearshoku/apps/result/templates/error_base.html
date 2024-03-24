@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}
+    <title>error title!</title>
+{% endblock %}
+
+{% block body %}
+{% load static %}
+<script type="text/javascript">
+
+</script>
+    <div class="wrapper">
+        <div class="error-content">
+            <div class="error-text">
+                {{ error_code }}
+                {{ error_image }}
+                {{ error_message }}
+            </div>
+            <div class="error-button">
+                <input type="button" value="return">
+            </div>
+        </div>
+    </div>
+{% endblock %}

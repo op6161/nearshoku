@@ -16,37 +16,44 @@
         {{selected_lat}}
         {{selected_lng}}
     {% endif %}
-    <div class="shops">
+    <br>
+
+    <!-- shops/all -->
+    <div class="how-many-shops">
+        {{ len_page_objects }} / {{ len_shop_list }}
+    </div>
+    <div class="shops-box">
 <!--div 사이즈를 고정하고 이미지 크기를 맞추면 좋을 듯 함-->
-        {% for shop in shop_list %}
-        <div class="shop">
-        <img src="{{shop.shop_thumbnail}}">
-<!--썸네일이 없는 파일은 google에서 이미지를 찾아오는 건 어떨까-->
-<!--https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif-->
-        {{shop.shop_list_number}}
-        {{shop.shop_name}}
-        {{shop.shop_kana}}
-        {{shop.shop_access}}
-        </div>
-        <br>
-        -------------------------------
-<!--너무 허접하니까 제대로 만들 것-->
-        <br>
+{#        {% for shop in shop_list %} 페이징 구현 이전 임시#}
+        {% for shop in page_object %}
+            <div class="shop-box">
+                <!--썸네일이 없는 파일은 google에서 이미지를 찾아오는 건 어떨까-->
+                <!--https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif-->
+                <img src="{{shop.shop_thumbnail}}">
+                {{shop.shop_list_number}}
+                {{shop.shop_name}}
+                {{shop.shop_kana}}
+                {{shop.shop_access}}
+            </div>
+            <form method="get" action='detail'>
+                <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
+                <input type="submit" value="show detail">
+            </form>
+            <br>
+            -------------------------------
+            <!--너무 허접하니까 제대로 만들 것-->
+            <br>
         {% endfor %}
     </div>
-    <div class="page">
-<!--페이징 구현이 필요함-->
-        <form method="post">
+    <div class="page-box">
         <p>here is page!</p>
         {% for page in paginator.page_range %}
-        {% if page == page_obj.number %}
-            <li><a style="color:white;" href="?page={{page}}">{{page}}</a></li>
-        {% else %}
-            <li><a style="color:black;" href="?page={{page}}">{{page}}</a></li>
-        {% endif %}
+            {% if page == page_obj.number %}
+                <a style="color:white;" href="?page={{page}}">{{page}}</a>
+            {% else %}
+                <a style="color:black;" href="?page={{page}}">{{page}}</a>
+            {% endif %}
         {% endfor %}
-
-    </form>
     </div>
 </div>
 {% endblock %}
