@@ -13,3 +13,4 @@ def get_current_latlng():
 def index(request):
     current_latlng = get_current_latlng()
     return render(request, 'result_index.html', current_latlng)
+

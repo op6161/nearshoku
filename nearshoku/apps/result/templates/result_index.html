@@ -8,12 +8,8 @@
     </script>
     <script defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&region=JP&language=ja"></script>
     <script src="{% static 'js/index.js' %}"></script>
-    <script>
-
-    </script>
-{#      index.js requirements#}
+{#===============================#}
     <div>
-        <input type="text" class="white-text" id="test_label" value="test"/>
         <br><br><br>
     </div>
     <div class="container bg-dark index-content-box">
@@ -89,13 +85,16 @@
                                name="selectSelectedLocationOrder" value="4">
                         <label class="btn btn-outline-success" for="SelectedOrderBest">オススメ順</label>
                 </div>
+
                 <div class="container current-submit-box">
+                    <!-- selected -->
                     <input type="submit"
                            class="btn btn-secondary"
                            id="submitSelectedLocation"
-                           value="search by selected location">
+                           value="Select Location First From Map" disabled>
                 </div>
             </div>
         </form>
     </div>
 {% endblock %}
+{#Search By Selected Location #}

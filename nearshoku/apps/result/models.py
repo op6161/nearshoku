@@ -64,4 +64,4 @@ class UserInfoModel(BaseModel):
     selected_lat = models.FloatField(null=True)
     selected_lng = models.FloatField(null=True)
     range = models.IntegerField()
-    order = models.BooleanField()
+    order = models.IntegerField()
