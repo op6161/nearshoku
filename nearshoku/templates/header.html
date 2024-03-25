@@ -1,25 +1,13 @@
-<div class='container pt-5 bg-dark text-white'>
+<div class='container pt-5 bg-dark text-white' >
 {#    <button class="btn-lg btn-dark w-100 h-100"#}
 {#    type="button">#}
 {#        Near shoku!#}
 {#    </button>#}
-    <h1 class="d-flex justify-content-center"
-        href=""
+    <label class="fa-solid fa-pepper-hot justify-content-center"
+       aria-hidden="true"></label>
+    <label class="d-flex justify-content-center text-head rubik-font"
+        href="{% url 'index' %}"
         id="main-text">
         Near shoku!
-    </h1>
-</div>
-<div class="container location-box col border
-border-secondary-subtle w-75">
-    <label class="text-white">
-        Current location
     </label>
-    <div>
-        <label class="text-white">
-        緯度 {{current_lat}}
-        </label>
-        <label class="text-white">
-            経度 {{current_lng}}
-        </label>
-    </div>
 </div>

@@ -1,104 +1,69 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    <title>result title!</title>
-{% endblock %}
-
-{% block header %}
-    {% include 'header.html' %}
-    <div class="container location-box col">
-        <label class="text-white">
-            Selected Location
-        </label>
-        <p class="text-white">
-            緯度 {{selected_lat}}
-        </p>
-        <p class="text-white">
-            経度 {{selected_lng}}
-        </p>
-    </div>
-{% endblock %}
 {% block body %}
-{% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static "css/result.css" %}">
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-  // div 요소를 찾습니다.
-      var clickableDivs = document.querySelectorAll('.clickable-div');
+    {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static "css/result.css" %}">
+    <div class="">
+        <br>
 
-      // div를 클릭할 때마다 폼을 제출합니다.
-        clickableDivs.forEach(function(div){
-            div.addEventListener('click',function(){
-                var divId = this.id();
-                console.log("clicked div id: " + divId);
-            })
-        })
-    });
-    </script>
-<div class="">
-    {% if selected_lat %}
+        <!-- shops/all -->
+        <div class="how-many-shops align-content-center">
+            <p class="text-white d-flex justify-content-center">
+            {{ len_page_objects }} / {{ len_shop_list }}
+            </p>
+        </div>
 
+        <div class="shops-box">
+    <!--div 사이즈를 고정하고 이미지 크기를 맞추면 좋을 듯 함-->
+    {#        {% for shop in shop_list %} 페이징 구현 이전 임시#}
+            {% for shop in page_object %}
+                <form method="get" action='detail' name="shop-form-{{forloop.counter}}">
+                    <div class="container shop-box"
+                         id="shop-div-{{forloop.counter}}" onclick="document.forms['shop-form-{{forloop.counter}}'].submit();">
+                        <div class="container row">
+                            <div class="col-4">
+                                <img class="shop-thumbnail" src="{{shop.shop_thumbnail}}">
+                                <!--썸네일이 없는 파일은 google에서 이미지를 찾아오는 건 어떨까-->
+                        <!--https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif-->
+                            </div>
+                            <div class="col-6">
+                                <p class="text-white">{{shop.shop_kana}}</p>
+                                <p class="text-white">{{shop.shop_name}}</p>
+                            </div>
+                            <div class="col-1">
+                            </div>
 
-    {% endif %}
-    <br>
-
-    <!-- shops/all -->
-    <div class="how-many-shops align-content-center">
-        <label class="text-white">
-        {{ len_page_objects }} / {{ len_shop_list }}
-        </label>
+                        </div>
+                        <div class="container row">
+                            <p class="text-white">{{shop.shop_access}}</p>
+                        </div>
+                        <br>
+                        <div class="detail-button-box">
+                            <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
+    {#                        <input class="btn-secondary w-50"#}
+    {#                                type="submit" value="show detail">#}
+                        </div>
+                    </div>
+                </form>
+                <hr class="pink-line">
+                <br>
+                <br>
+            {% endfor %}
+        </div>
+        <ul class="pagination justify-content-center">
+            {% for page in paginator.page_range %}
+                {% if page == page_object.number %}
+                    <li class="page-item active" aria-current="page">
+                       <a class ="page-link" href="?page={{page}}">
+                           {{page}}
+                       </a></li>
+                {% else %}
+                    <li class="page-item" aria-current="page">
+                        <a class ="page-link" href="?page={{page}}">
+                            {{page}}]
+                        </a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
     </div>
-
-    <div class="shops-box">
-<!--div 사이즈를 고정하고 이미지 크기를 맞추면 좋을 듯 함-->
-{#        {% for shop in shop_list %} 페이징 구현 이전 임시#}
-        {% for shop in page_object %}
-            <form method="get" action='detail'>
-                <div class="container shop-box" id="shop-box-{{forloop.counter}}">
-                    <div class="container row">
-                        <div class="col-4">
-                            <img class="shop-thumbnail" src="{{shop.shop_thumbnail}}">
-                            <!--썸네일이 없는 파일은 google에서 이미지를 찾아오는 건 어떨까-->
-                    <!--https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif-->
-                        </div>
-                        <div class="col-6">
-                            <p class="text-white">{{shop.shop_kana}}</p>
-                            <p class="text-white">{{shop.shop_name}}</p>
-                        </div>
-                        <div class="col-1">
-                        </div>
-
-                    </div>
-                    <div class="container row">
-                        <p class="text-white">{{shop.shop_access}}</p>
-                    </div>
-                    <br>
-                    <div class="detail-button-box">
-                        <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
-                        <input class="btn-secondary w-50"
-                                type="submit" value="show detail">
-                    </div>
-                </div>
-            </form>
-            <hr class="pink-line">
-            <br>
-            <br>
-        {% endfor %}
-    </div>
-    <ul class="pagination justify-content-center">
-        {% for page in paginator.page_range %}
-            {% if page == page_object.number %}
-                <li class="page-item active" aria-current="page">
-                   <a class ="page-link" href="?page={{page}}">
-                       {{page}}
-                   </a></li>
-            {% else %}
-                <li class="page-item" aria-current="page">
-                    <a class ="page-link" href="?page={{page}}">
-                        {{page}}]
-                    </a></li>
-            {% endif %}
-        {% endfor %}
-    </ul>
-</div>
 {% endblock %}

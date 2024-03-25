@@ -1,38 +1,89 @@
 {% extends 'base.html' %}
-
-{% block title %}
-    <title>result_detail title!</title>
+    {% load static %}
+        <script type="text/javascript" src="{% static 'js/detail.js' %}"></script>
+{% block header %}
+    {% include 'header.html' %}
 {% endblock %}
 
 {% block body %}
-{% load static %}
-<div class="wrapper">
-    <h1>this is detail page !!!</h1>
-    <div class="return">
-        <button>
+<div class="">
+    <div class="">
+        <button class=""
+                onclick="location.href=''">
             목록
         </button>
     </div>
-    <h1>필수정보</h1>
-    매장이름:
-    {{ detail_name }}<br>
-    주소:
-    {{ detail_address }}<br>
-    영업시간:
-    {{ detail_time }}<br>
-    매장사진:
-    <img src="{{ detail_image }}"><br>
-    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-<br>
-    <h1>추가정보</h1>>
-    이름카나
-    {{ detail_kana }}<br>
-    액세스
-    {{ detail_access }}<br>
-    키워드
-    {{ detail_keyword }}<br>
-    매장위치
-    {{ detail_lat }} / {{ detail_lng }}<br>
-    매장홈페이지
-    {{ detail_url }}<br>
+    <div class="detail-name">
+        <p class="text-subhead text-white d-flex justify-content-center">
+            {{ detail_kana }}
+        </p>
+        <p class="text-head text-white d-flex justify-content-center">
+            {{ detail_name }}
+        </p>
+    </div>
+
+    <br>
+    <hr class="pink-line">
+    <div class="row">
+        <div class="container detail-image col">
+            <img src="{{ detail_image }}">
+        </div>
+        <div class="detail-timetable col">
+            <label class="text-white">
+                영업시간
+                <!--여러줄일경우 for문으로 하면 좋을듯-->
+            </label>
+            <label class="text-white">
+                {{ detail_time }}
+            </label>
+        </div>
+    </div>
+    <hr class="pink-line">
+    <div class="detail-address">
+        <label class="text-white">
+            {{ detail_address }}
+            <br>
+            <!--여러줄일경우 for문으로 하면 좋을듯-->
+            {{ detail_access }}
+        </label>
+    </div>
+    <hr class="pink-line">
+    <div class="container detail-buttons">
+        <input type="radio" class="btn-check detail-map-button"
+               id="MapButton"
+               name="detail-button"
+               value="open-map" onclick=""/>
+        <label class="btn btn-outline-secondary" for="MapButton">Map</label>
+        <input type="radio" class="btn-check detail-info-button"
+               id="InfoButton"
+               name="detail-button"
+               value="open-info" onclick=""/>
+        <label class="btn btn-outline-secondary" for="InfoButton">Info</label>
+
+{#        <button type="button"#}
+{#                class="btn btn-outline-secondary"#}
+{#                onclick="location.href='{{ detail_url }}'">#}
+{#            Homepage#}
+{#        </button>#}
+    </div>
+    <div class="container detail-map">
+        {{ detail_lat }} / {{ detail_lng }}
+        <input type="radio" class="btn-check"
+               id="MapCloseButton"
+               name="detail-button"
+               value="close-map" onclick=""/>
+        <label class="btn btn-outline-secondary" for="MapCloseButton">Close</label>
+    </div>
+    <div class="container detail-info">
+        <input type="radio" class="btn-check"
+               id="InfoCloseButton"
+               name="detail-button"
+               value="close-info" onclick=""/>
+        <label class="btn btn-outline-secondary" for="InfoCloseButton">Close</label>
+    </div>
+    <div class>
+
+    </div>
+    <br>
 </div>
 {% endblock %}

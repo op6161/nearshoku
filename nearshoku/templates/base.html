@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
     {% include 'head.html' %}
+    {% block title %}
+        <title>ニア食</title>
+    {% endblock %}
     <div class="bg-dark">
         <div class="container h-100 w-100 p-3 d-inline-block">
-            {% block title %}
-                <!--title area-->
-            {% endblock %}
-
             {% block header %}
                 {% include 'header.html' %}
+                {% include 'header-option.html' %}
             {% endblock %}
 
             <div class=""></div>

@@ -3,6 +3,37 @@
     height:1px;
     border:0;
 }
+.white-line{
+    background:pink;
+    height:1px;
+    border:0;
+    width:50%;
+}
 .location-box{
 
+}
+
+.rubik-font {
+  font-family: "Rubik Scribble", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+.text-head{
+    font-size:40px;
+}
+
+.text-subhead{
+    font-size:20px;
+}
+
+.text-location{
+    font-size:12px;
+}
+
+.detail-info .detail-map{
+    height:0;
+    overflow:hidden;
+    transition:height ease-out 1s 0s;
 }
