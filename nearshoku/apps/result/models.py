@@ -24,9 +24,9 @@ class ShopInfoModel(BaseModel):
     shop_kana = models.CharField(max_length=100)
     shop_access = models.CharField(max_length=100)
     shop_thumbnail = models.ImageField()
-    shop_model_hash = models.CharField(max_length=50) # To verify the shown data
-    # searched_lat = models.FloatField() # To verify the shown data
-    # searched_lng = models.FloatField() # To verify the shown data
+    #shop_model_hash = models.CharField(max_length=50) # To verify the shown data
+    searched_lat = models.FloatField() # To verify the shown data
+    searched_lng = models.FloatField() # To verify the shown data
 
 class ShopDetailModel(BaseModel):
     """
@@ -60,7 +60,7 @@ class UserInfoModel(BaseModel):
     '''
     A model-form to save user info
     '''
-    user_model_hash = models.CharField(max_length=20)
+    #user_model_hash = models.CharField(max_length=20)
     current_lat = models.FloatField() # => searched_lat
     current_lng = models.FloatField() # => searched_lng
     selected_lat = models.FloatField(null=True)
