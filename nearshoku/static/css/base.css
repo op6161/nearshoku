@@ -1,3 +1,28 @@
+/* fonts */
+.rubik-font {
+  font-family: "Rubik Scribble", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+.noto-serif-font {
+  font-family: "Noto Serif JP", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+/*====== style ======*/
+/*script*/
+.detail-info{
+    height:0px;
+    overflow:hidden;
+    transition:height ease-out 1s 0s;
+}
+.detail-map{
+    height:0px;
+    overflow:hidden;
+    transition:height ease-out 1s 0s;
+}
+/*line-style*/
 .pink-line{
     background:pink;
     height:1px;
@@ -9,17 +34,12 @@
     border:0;
     width:50%;
 }
+/*box-style*/
 .location-box{
 
 }
 
-.rubik-font {
-  font-family: "Rubik Scribble", system-ui;
-  font-weight: 400;
-  font-style: normal;
-}
-
-
+/*text-style*/
 .text-head{
     font-size:40px;
 }
@@ -30,10 +50,4 @@
 
 .text-location{
     font-size:12px;
-}
-
-.detail-info .detail-map{
-    height:0;
-    overflow:hidden;
-    transition:height ease-out 1s 0s;
 }

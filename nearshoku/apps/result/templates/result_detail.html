@@ -7,17 +7,17 @@
 
 {% block body %}
 <div class="">
-    <div class="">
-        <button class=""
-                onclick="location.href=''">
+    <div class="goback-button-box">
+        <button class="btn btn-secondary"
+                onclick="history.back()">
             목록
         </button>
     </div>
-    <div class="detail-name">
-        <p class="text-subhead text-white d-flex justify-content-center">
+    <div class="detail-name-box">
+        <p class="text-subhead text-white d-flex justify-content-center noto-serif-font">
             {{ detail_kana }}
         </p>
-        <p class="text-head text-white d-flex justify-content-center">
+        <p class="text-head text-white d-flex justify-content-center noto-serif-font">
             {{ detail_name }}
         </p>
     </div>
@@ -48,40 +48,10 @@
         </label>
     </div>
     <hr class="pink-line">
-    <div class="container detail-buttons">
-        <input type="radio" class="btn-check detail-map-button"
-               id="MapButton"
-               name="detail-button"
-               value="open-map" onclick=""/>
-        <label class="btn btn-outline-secondary" for="MapButton">Map</label>
-        <input type="radio" class="btn-check detail-info-button"
-               id="InfoButton"
-               name="detail-button"
-               value="open-info" onclick=""/>
-        <label class="btn btn-outline-secondary" for="InfoButton">Info</label>
+    <div class="container detail-map-buttons">
 
-{#        <button type="button"#}
-{#                class="btn btn-outline-secondary"#}
-{#                onclick="location.href='{{ detail_url }}'">#}
-{#            Homepage#}
-{#        </button>#}
     </div>
-    <div class="container detail-map">
-        {{ detail_lat }} / {{ detail_lng }}
-        <input type="radio" class="btn-check"
-               id="MapCloseButton"
-               name="detail-button"
-               value="close-map" onclick=""/>
-        <label class="btn btn-outline-secondary" for="MapCloseButton">Close</label>
-    </div>
-    <div class="container detail-info">
-        <input type="radio" class="btn-check"
-               id="InfoCloseButton"
-               name="detail-button"
-               value="close-info" onclick=""/>
-        <label class="btn btn-outline-secondary" for="InfoCloseButton">Close</label>
-    </div>
-    <div class>
+    <div class="container detail-map-modal">
 
     </div>
     <br>

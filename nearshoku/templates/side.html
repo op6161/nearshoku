@@ -1,0 +1,25 @@
+<script>
+    $(document).ready(function(){
+        $(window).scroll(function(){
+            var scrollPos = $(window).scrollTop();
+            if(scrollPos > 100) { // 스크롤 위치가 특정 값 이상인 경우에만 팝업을 보여줌
+                $('.modal').modal('show'); // 모달을 보여줌
+            } else {
+                $('.modal').modal('hide'); // 모달을 숨김
+            }
+        });
+    });
+</script>
+<div class="modal fixed-right" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Side Popup</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label class="text-white">이 곳에 팝업 내용을 입력하세요.</label>
+            </div>
+        </div>
+    </div>
+</div>
