@@ -245,7 +245,8 @@ def info_pack(info_json, model_form,model_hash=None):
                 'detail_shop_id': shop['id'],
                 'detail_name': check_unicode(shop['name']),
                 'detail_address': check_unicode(shop['address']),
-                'detail_image': shop['photo']['pc']['m'],
+                'detail_image': shop['photo']['pc']['l'],
+                'detail_time': shop['open'],
                 # + info
                 'detail_kana': check_unicode(shop['name_kana']),
                 'detail_access': check_unicode(shop['access']),
@@ -254,7 +255,11 @@ def info_pack(info_json, model_form,model_hash=None):
                 'detail_lat': shop['lat'],
                 'detail_lng': shop['lng'],
                 'detail_url': shop['urls']['pc'],
-                'detail_card': ['card'],
+                'detail_card': shop['card'],
+                'detail_genre': shop['genre']['name'],
+                'detail_genre_catch': shop['genre']['catch'],
+                'detail_price_average': shop['budget']['average'],
+                'detail_station': shop['station_name'],
             }
             info_package.append(model_template)
     elif model_form == SHOP_INFO_MODEL_FORM:
@@ -273,7 +278,7 @@ def info_pack(info_json, model_form,model_hash=None):
 
 
 # 두 함수는 return은 다르지만 args가 중복되니 기능을 합칠 수 잇어보인다
-# API 호출을 분리시키면 될 듯
+# API 호출을 분리시키면 될 듯 **kwargs로 하면 될거같은데
 def load_user_info(range,order,model_hash,current_lat,
                    current_lng,selected_lat=None,selected_lng=None):
     '''
