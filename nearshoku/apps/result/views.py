@@ -40,36 +40,6 @@ class _Const(object):
         return 'HOTPEPPER_API_KEY'
 
 
-class _Error:
-    def __init__(self, errcode):
-        self.code = errcode
-        self.msg = 'Error'
-        self.img = None
-
-        if errcode==404:
-            self.NotFound()
-        elif errcode==400:
-            pass
-
-    def NotFound(self):
-        self.img = 'static/others/img/img_404.png'
-        self.msg = 'Not Found'
-        self.code = errcode
-    def BadRequest(self):
-        self.img = 1
-
-
-    @constant
-    def CODE(self):
-        return self.code
-    @constant
-    def MESSAGE(self):
-        return self.msg
-    @constant
-    def IAMGE(self):
-        return self.img
-
-
 def check_unicode(text):
     """
     Replace the str has unicode u3000 -> ' ' (space)
@@ -144,9 +114,6 @@ CONST = _Const()
 SHOP_INFO_MODEL_FORM = models.ShopInfoModel
 USER_INFO_MODEL_FORM = models.UserInfoModel
 SHOP_DETAIL_MODEL_FORM = models.ShopDetailModel
-# shop_info_model_form = models.ShopInfoModel
-# user_info_model_form = models.UserInfoModel
-# shop_detail_model_form = models.ShopDetailModel
 # ----- -------- ----- #
 
 
@@ -212,18 +179,7 @@ def get_current_latlng():
     current_lat, current_lng = get_latlng(api_key)
     context = {'current_lat': current_lat, 'current_lng': current_lng}
     return context
-# # 이 두 함수는 조건부로 합치면 좋을 것 같다 get latlng까지, view.result 같이 수정 필요함 주의
-def get_selected_latlng():
-    '''
 
-    '''
-    api_key = get_api(CONST.GOOGLE_API)
-    current_lat, current_lng = get_latlng(api_key)
-    selected_lat, selected_lng = 1, 1 #
-    context = {
-        'current_lat': current_lat, 'current_lng': current_lng,
-        'selected_lat': selected_lat, 'selected_lng': selected_lng}
-    return context
 
 def hot_pepper_api(**kwargs):
     api_key = get_api(CONST.RECRUIT_API)
