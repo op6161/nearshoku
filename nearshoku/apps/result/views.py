@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from django.core.cache import cache
+from django.contrib import staticfiles
 from . import models
 import json
 import requests
@@ -37,6 +38,36 @@ class _Const(object):
     @constant
     def RECRUIT_API():
         return 'HOTPEPPER_API_KEY'
+
+
+class _Error:
+    def __init__(self, errcode):
+        self.code = errcode
+        self.msg = 'Error'
+        self.img = None
+
+        if errcode==404:
+            self.NotFound()
+        elif errcode==400:
+            pass
+
+    def NotFound(self):
+        self.img = 'static/others/img/img_404.png'
+        self.msg = 'Not Found'
+        self.code = errcode
+    def BadRequest(self):
+        self.img = 1
+
+
+    @constant
+    def CODE(self):
+        return self.code
+    @constant
+    def MESSAGE(self):
+        return self.msg
+    @constant
+    def IAMGE(self):
+        return self.img
 
 
 def check_unicode(text):
@@ -228,10 +259,10 @@ def hot_pepper_api(**kwargs):
         # 일본 내에서도 주변에 등록된 식당이 없다면 사용할 수 없을 것 같다
         # >> keyError:'shop' 발생함
         # 검색 결과가 없습니다 출력하면 좋을 듯 하다
-        raise 404
+        return 0
     except:
         # detail: API Server error
-        raise 404
+        raise HTTP('500')
 
     return shop_info_json
 
@@ -240,6 +271,8 @@ def info_pack(info_json, model_form,model_hash=None):
     info_package = []
     if model_form == SHOP_DETAIL_MODEL_FORM:
         for shop in info_json:
+            print('info_pack shop (shop_detail)')
+            print(shop)
             model_template = {
                 # 필수요구
                 'detail_shop_id': shop['id'],
@@ -264,6 +297,8 @@ def info_pack(info_json, model_form,model_hash=None):
             info_package.append(model_template)
     elif model_form == SHOP_INFO_MODEL_FORM:
         for shop in info_json:
+            print('info_pack shop (shop_info)')
+            print(shop)
             model_template = {
                 'shop_id': shop['id'],
                 'shop_name': check_unicode(shop['name']),
@@ -310,9 +345,8 @@ def shop_show(request, model_hash, **kwargs):
         # load shop/user info from database by model_hash
         shop_list = SHOP_INFO_MODEL_FORM.objects.filter(shop_model_hash=model_hash)
         user_info = USER_INFO_MODEL_FORM.objects.get(user_model_hash=model_hash)
-    except:
-        # model_hash changed
-        raise "Cache Lost Error"
+    except Exception:
+        raise Exception('NoSearchResult')
 
     # paging =================================
     if kwargs.get('page'):
@@ -346,15 +380,19 @@ def shop_show(request, model_hash, **kwargs):
 
     # *contexts: {user info, shop info, page info}
     contexts = combine_dictionary(cont1, cont2)
-
+    print('shop show contexts')
+    print(contexts)
     return render(request, 'result.html', contexts)
 
 
-def direction_error(request):
+def search_error(request,contexts):
     '''
 
     '''
-    return HttpResponse('direction error')
+    print('search err contexts')
+    print(contexts)
+    return render(request, 'result_error.html', contexts)
+
 
 def index(request):
     '''
@@ -375,12 +413,20 @@ def result(request): # for test code # add code test num a1a1
         # get GET method (move page)
         print('result() debug: GET method')
         page = request.GET.get('page')
+
         return shop_show(request, model_hash, page=page)
+
     elif request.method == 'POST':
         # get POST method (new search request)
         print('result() debug: POST method')
         model_hash = update_database(request)
-        return shop_show(request, model_hash)
+        try:
+            return shop_show(request, model_hash)
+        # no search
+        except Exception as e:
+            print(e)
+            print(model_hash)
+            return search_error(request, model_hash)
 
     print('*' * 10)
     print('*' * 10)
@@ -407,9 +453,8 @@ def update_database(request):
     cache.set('model_hash', model_hash)
     selected_lat = None
     selected_lng = None
-
-    order = 1  # temp value
-
+    order = 1  # temp value for test
+    range = 1  # temp value for test
     if request.method == 'POST':
         # save user info
         current_latlng = get_current_latlng()
@@ -418,14 +463,14 @@ def update_database(request):
 
         if request.POST.get('selectCurrentLocationRange'):
             range = request.POST['selectCurrentLocationRange']
-            # order = request.POST['selectCurrentLocationOrder']
+            order = request.POST['selectCurrentLocationOrder']
             lat = current_lat
             lng = current_lng
         elif request.POST.get('selectSelectedLocationRange'):
             range = request.POST['selectSelectedLocationRange']
-            # order = request.POST['selectSelectedLocationOrder']
-            selected_lat = 34.67 # temp value
-            selected_lng = 135.52 # temp value
+            order = request.POST['selectSelectedLocationOrder']
+            selected_lat = request.POST['selected_lat']
+            selected_lng = request.POST['selected_lng']
             lat = selected_lat
             lng = selected_lng
         else:
@@ -436,6 +481,12 @@ def update_database(request):
 
         # save shop info to show
         shop_info_json = hot_pepper_api(lat=lat, lng=lng, range=range, count=100)#나중에추가order=order
+        if not shop_info_json:
+            # no search result
+            return {'current_lat': current_lat,
+                    'current_lng': current_lng,
+                    'selected_lat': selected_lat,
+                    'selected_lng': selected_lng}
         shop_info = info_pack(shop_info_json, SHOP_INFO_MODEL_FORM, model_hash)
         model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
     return model_hash
@@ -454,3 +505,4 @@ def detail(request):
         detail_info = SHOP_DETAIL_MODEL_FORM.objects.get(detail_shop_id=shop_id)
         contexts = detail_info.__dict__
         return render(request,'result_detail.html',contexts)
+
