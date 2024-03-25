@@ -1,34 +1,19 @@
 {% extends 'base.html' %}
 {% block body %}
 {% load static %}
-    <script defer src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap"></script>
-    <script>
-        var lat,lng;
-        window.initMap = function () {
-            const map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: {{current_lat}}, lng: {{current_lng}}},
-                zoom: 13,
-            });
-            map.addListener("click",function(e){
-                placeMarkerAndPanTo(e.latLng, map);
-                console.log(e.latLng)
-                lat = e.latLng['lat']
-                lng = e.latLng['lng']
-                })
-            function placeMarkerAndPanTo(latLng, map){
-                new google.maps.Marker({
-                    position: latLng,
-                    map: map,
-                });
-                {#map.panTo(latLng);#}
-            }
-        };
+{#     index.js requirements#}
+    <script type="text/javascript">
+    const current_lat = {{ current_lat }}
+    const current_lng = {{ current_lng }}
     </script>
+    <script defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&region=JP&language=ja"></script>
+    <script src="{% static 'js/index.js' %}"></script>
+    <script>
 
-
-
+    </script>
+{#      index.js requirements#}
     <div>
-
+        <input type="text" class="white-text" id="test_label" value="test"/>
         <br><br><br>
     </div>
     <div class="container bg-dark index-content-box">
@@ -76,6 +61,10 @@
                 <div class="container index-map-box">
                 <!--구글맵과 연동해서 원하는 좌표를 찍어내는 식으로 하고 싶은데 그거 넣는 영역 -->
                     <div id="map"></div>
+                </div>
+                <div class="data-container">
+                    <input type="hidden" id="selected_lat" name="selected_lat" value=""/>
+                    <input type="hidden" id="selected_lng" name="selected_lng" value=""/>
                 </div>
                 <div class="container select-range-box">
                         <select name="selectSelectedLocationRange"
