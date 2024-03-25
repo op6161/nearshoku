@@ -361,6 +361,10 @@ def index(request):
 
     '''
     current_latlng = get_current_latlng()
+    api_key = get_api(CONST.GOOGLE_API)
+
+    combine_dictionary(current_latlng,{'api_key':api_key})
+
     return render(request, 'result_index.html', current_latlng)
 
 

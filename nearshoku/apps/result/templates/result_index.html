@@ -1,18 +1,41 @@
 {% extends 'base.html' %}
 {% block body %}
 {% load static %}
-    <script type="text/javascript">
-
+    <script defer src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap"></script>
+    <script>
+        var lat,lng;
+        window.initMap = function () {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: {{current_lat}}, lng: {{current_lng}}},
+                zoom: 13,
+            });
+            map.addListener("click",function(e){
+                placeMarkerAndPanTo(e.latLng, map);
+                console.log(e.latLng)
+                lat = e.latLng['lat']
+                lng = e.latLng['lng']
+                })
+            function placeMarkerAndPanTo(latLng, map){
+                new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                });
+                {#map.panTo(latLng);#}
+            }
+        };
     </script>
+
+
+
     <div>
-    {% include 'side.html' %}
-        <label> </label>
+
+        <br><br><br>
     </div>
-    <div class="container bg-dark">
+    <div class="container bg-dark index-content-box">
         <form id="byCurrent" method="POST" action="result">
             {% csrf_token %}
-            <div class="container">
-                <div class="container">
+            <div class="container current-location-box">
+                <div class="container current-range-box">
                     <select name="selectCurrentLocationRange"
                             class="form-select">
                         <option selected value="1">Searching Range from your location</option>
@@ -23,7 +46,7 @@
                         <option value="5">3km以内</option>
                     </select>
                 </div>
-                <div class="container">
+                <div class="container current-order-box">
                     <!--order value 4=권장순, others=거리순 -->
                     <!--거리순-->
                     <input type="radio" class="btn-check" id="CurrentOrderRange"
@@ -35,7 +58,7 @@
                            name="selectCurrentLocationOrder" value="4">
                     <label class="btn btn-outline-success" for="CurrentOrderBest">オススメ順</label>
                 </div>
-                <div class="container">
+                <div class="container current-submit-box">
                     <input type="submit"
                            class="btn btn-secondary"
                            id="submitCurrentLocation"
@@ -49,12 +72,12 @@
 
         <form id="bySelected" method="POST" action="result">
             {% csrf_token %}
-            <div class="container">
-                <div id="selectMap">
+            <div class="container select-location-box">
+                <div class="container index-map-box">
                 <!--구글맵과 연동해서 원하는 좌표를 찍어내는 식으로 하고 싶은데 그거 넣는 영역 -->
-                    <label class="text-white">map</label>
+                    <div id="map"></div>
                 </div>
-                <div class="container">
+                <div class="container select-range-box">
                         <select name="selectSelectedLocationRange"
                                 class="form-select">
                             <option selected value="1">Searching Range from select location</option>
@@ -65,7 +88,7 @@
                             <option value="5">3km以内</option>
                         </select>
                 </div>
-                <div class="container">
+                <div class="container select-order-box">
                         <!--order value 4=권장순, others=거리순 -->
                         <!--거리순-->
                         <input type="radio" class="btn-check" id="SelectedOrderRange"
@@ -77,7 +100,7 @@
                                name="selectSelectedLocationOrder" value="4">
                         <label class="btn btn-outline-success" for="SelectedOrderBest">オススメ順</label>
                 </div>
-                <div class="container">
+                <div class="container current-submit-box">
                     <input type="submit"
                            class="btn btn-secondary"
                            id="submitSelectedLocation"

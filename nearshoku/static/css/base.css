@@ -51,3 +51,7 @@
 .text-location{
     font-size:12px;
 }
+/* google */
+#map{
+    height:300px;
+}
