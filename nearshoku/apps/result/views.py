@@ -53,8 +53,8 @@ def check_unicode(text):
         return None
     return text.replace('\u3000', ' ')
 
-# 필요없어짐
-def make_hash():
+
+def make_hash():# 필요없어짐
     """
     Make hash key from current time
 
@@ -134,7 +134,7 @@ def get_api(api_type):
     return api_key
 
 
-def get_latlng(api_key):
+def get_latlng(api_key):# 필요없어짐: backend에서 서버위치를 구하는 코드
     """
     Get user's current lat/lng from google-geolocation
     Args:
@@ -154,7 +154,7 @@ def get_latlng(api_key):
     return lat, lng
 
 # # # 구글맵과 연동 필요함
-def get_location(lat, lng, api_key):
+def get_location(lat, lng, api_key):# 필요없어짐
     '''
         Get user's location for lat/lng from google-geocode API
 
@@ -242,12 +242,9 @@ def index(request):
     '''
 
     '''
-    current_latlng = get_current_latlng()
     api_key = get_api(CONST.GOOGLE_API)
-
-    combine_dictionary(current_latlng,{'api_key':api_key})
-
-    return render(request, 'result_index.html', current_latlng)
+    contexts = {'api_key': api_key}
+    return render(request, 'result_index.html', contexts)
 
 
 # def result
@@ -294,21 +291,8 @@ def result(request): # for test code # add code test num a1a1
         #     print(Exception)
         #     raise Exception('POST shop_show failed')
 
-    print('*' * 10)
-    print('*' * 10)
-    print('active this code??')
-    print('*' * 10)
-    print('*' * 10)
-
-    if model_hash is None:########################################!!
-        print('result() debug: model hash isNone')
-        # 새로운 검색 요청을 받았을 때, 분기 수정 후 발생하지 않고 있음
-        model_hash = update_database(request)########################################!!
-        return shop_show(request, model_hash)########################################!!
     else:
-        # 페이지 이동 시 작동할 것으로 추정
-        print('result() debug: model_hash is True')########################################!!
-        return shop_show(request, model_hash)########################################!!
+        return search_error(request,'bad reqeust')
 
 
 def update_database(request):
@@ -320,13 +304,14 @@ def update_database(request):
     is_selected = False
     if request.method == 'POST':
         # save user info
-        current_latlng = get_current_latlng()
-        current_lat = current_latlng['current_lat']
-        current_lng = current_latlng['current_lng']
+        # current_latlng = get_current_latlng()
+        print(request.POST)
 
         if request.POST.get('selectCurrentLocationRange'):
             range_ = request.POST['selectCurrentLocationRange']
             order = request.POST['selectCurrentLocationOrder']
+            current_lng = request.POST['CurrentLat']
+            current_lat = request.POST['CurrentLng']
             lat = current_lat
             lng = current_lng
         elif request.POST.get('selectSelectedLocationRange'):
@@ -334,6 +319,8 @@ def update_database(request):
             order = request.POST['selectSelectedLocationOrder']
             selected_lat = request.POST['selected_lat']
             selected_lng = request.POST['selected_lng']
+            current_lng = request.POST['BySelectedCurrentLng']
+            current_lat = request.POST['BySelectedCurrentLat']
             lat = selected_lat
             lng = selected_lng
             is_selected = True
@@ -367,7 +354,7 @@ def update_database(request):
 
     elif request.method == 'GET':
         searched_location = cache.get('searched_location')
-        print(searched_location['selected_lat'],type(searched_location['selected_lat']))
+        print(searched_location['selected_lat'])
         print(searched_location)
         if searched_location['selected_lat']:
             is_selected = True

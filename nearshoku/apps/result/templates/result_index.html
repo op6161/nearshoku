@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
+{% block header %}
+    {% include 'header.html' %}
+{% endblock %}
 {% block body %}
     {% load static %}
-    {#     index.js requirements#}
-    <script type="text/javascript">
-        const current_lat = {{ current_lat }}
-        const current_lng = {{ current_lng }}
-    </script>
-    <script defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&region=JP&language=ja"></script>
-    <script src="{% static 'js/index.js' %}"></script>
-    {#===============================#}
+    <script src="{% static 'js/get_geo.js' %}"></script>
+    <script defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&region=JP&language=ja"></script>
+    <script defer src="{% static 'js/index.js' %}"></script>
     <div>
         <br>
         <br>
@@ -47,6 +45,10 @@
                            id="submitCurrentLocation"
                            value="search by current location">
                 </div>
+            </div>
+            <div id="location_data">
+                <input type="hidden" id="current_lat" name="CurrentLat" value=""/>
+                <input type="hidden" id="current_lng" name="CurrentLng" value=""/>
             </div>
         </form>
 
@@ -95,6 +97,10 @@
                            id="submitSelectedLocation"
                            value="Select Location First From Map" disabled>
                 </div>
+            </div>
+            <div id="location_data">
+                <input type="hidden" id="current_lat_s" name="BySelectedCurrentLat"/>
+                <input type="hidden" id="current_lng_s" name="BySelectedCurrentLng"/>
             </div>
         </form>
     </div>

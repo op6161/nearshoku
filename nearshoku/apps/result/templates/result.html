@@ -23,7 +23,11 @@
                          id="shop-div-{{forloop.counter}}" onclick="document.forms['shop-form-{{forloop.counter}}'].submit();">
                         <div class="container row">
                             <div class="col-4">
-                                <img class="shop-thumbnail" src="{{shop.shop_thumbnail}}">
+                                {% if shop.shop_thumbnail == 'https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif'%}
+                                    <img class="shop-thumbnail" src="{% static 'others/img/no_thumbnail.png' %}">
+                                {% else %}
+                                    <img class="shop-thumbnail" src="{{shop.shop_thumbnail}}">
+                                {% endif %}
                                 <!--썸네일이 없는 파일은 google에서 이미지를 찾아오는 건 어떨까-->
                         <!--https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif-->
                             </div>
