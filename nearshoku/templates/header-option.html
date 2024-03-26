@@ -1,14 +1,23 @@
+{% load static %}
+<script src="{% static 'js/get_geo.js' %}"></script>
+
 <div class="container location-box col border
 border-secondary-subtle w-75">
     <label class="text-white text-subhead">
         Current Location
     </label>
     <div>
-        <label class="text-white text-location">
-        緯度 {{current_lat}}
+        <label class="text-white text-location geolocation-html-show">
+        緯度
+        </label>
+        <label id="current_lat_geo" class="text-white text-location">
+            --.----
         </label>
         <label class="text-white text-location">
-            経度 {{current_lng}}
+            経度
+        </label>
+        <label id="current_lng_geo" class="text-white text-location">
+            ---.----
         </label>
     </div>
 </div>
