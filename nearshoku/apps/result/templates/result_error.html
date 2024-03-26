@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}
+    <title>Search Error!</title>
+{% endblock %}
+{% load static %}
+
+<script type="text/javascript">
+
+</script>
+{% block body %}
+    {% include 'go_back_button.html' %}
+    <div class="container-xxl">
+        <p class="text-white-50">
+            No Search Result
+        </p>
+        {% if selected_lat %}
+            <label class="text-white-50">
+                From You Selected!
+            </label>
+        {% else %}
+            <label class="text-white-50">
+                From Around You!
+            </label>
+        {% endif %}
+    </div>
+{% endblock %}

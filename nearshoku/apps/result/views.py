@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from django.core.cache import cache
+from django.contrib import staticfiles
 from . import models
 import json
 import requests
@@ -25,17 +26,19 @@ def constant(func):
         return func()
     return property(func_get, func_set)
 
+
 class _Const(object):
     """
     This Class is saving constants
     """
     @constant
-    def GOOGLE_API(): # is not err
+    def GOOGLE_API():
         return 'GEOLOCATION_API_KEY'
 
     @constant
     def RECRUIT_API():
         return 'HOTPEPPER_API_KEY'
+
 
 def check_unicode(text):
     """
@@ -46,8 +49,11 @@ def check_unicode(text):
     Returns:
         text(str): the string that changed from u3000 to space
     """
-    return text.replace('\u3000',' ')
+    if text is None:
+        return None
+    return text.replace('\u3000', ' ')
 
+# 필요없어짐
 def make_hash():
     """
     Make hash key from current time
@@ -57,6 +63,7 @@ def make_hash():
     import time
     key = time.time_ns()
     return hash(key)
+
 
 def parsing_xml_to_json(xml_data):
     """
@@ -73,6 +80,7 @@ def parsing_xml_to_json(xml_data):
     json_data = json.loads(json_dump)
     return json_data
 
+
 def model_form_save(item_list, form_model):
     """
     Save the items into the modelform(db)
@@ -83,6 +91,7 @@ def model_form_save(item_list, form_model):
     """
     object_bulk = [form_model(**item) for item in item_list]
     form_model.objects.bulk_create(object_bulk)
+
 
 def combine_dictionary(dict1, dict2):
     """
@@ -97,7 +106,16 @@ def combine_dictionary(dict1, dict2):
     dict1.update(dict2)
     return dict1
 
-CONST = _Const() # const class using set
+
+# ----- settings ----- #
+# const class using set
+CONST = _Const()
+# model form using set
+SHOP_INFO_MODEL_FORM = models.ShopInfoModel
+USER_INFO_MODEL_FORM = models.UserInfoModel
+SHOP_DETAIL_MODEL_FORM = models.ShopDetailModel
+# ----- -------- ----- #
+
 
 # use API function
 def get_api(api_type):
@@ -161,34 +179,9 @@ def get_current_latlng():
     current_lat, current_lng = get_latlng(api_key)
     context = {'current_lat': current_lat, 'current_lng': current_lng}
     return context
-# # 이 두 함수는 조건부로 합치면 좋을 것 같다 get latlng까지, view.result 같이 수정 필요함 주의
-def get_selected_latlng():
-    '''
-
-    '''
-    api_key = get_api(CONST.GOOGLE_API)
-    current_lat, current_lng = get_latlng(api_key)
-    selected_lat, selected_lng = 1,1
-    context = {
-        'current_lat': current_lat, 'current_lng': current_lng,
-        'selected_lat': selected_lat, 'selected_lng': selected_lng}
-    return context
 
 
-def load_shop_info(lat,lng,range,model_hash):
-    '''
-        Load shop info from hotpepper API
-
-        Args:
-            lat(float): latitude
-            lng(float): longitude
-            range(int): range option
-            model_hash(int): a hash key made by make_hash()
-        Raises:
-            KeyError: There is no search result
-        Returns:
-            shop_info(list): list of dicts shop information
-    '''
+def hot_pepper_api(**kwargs):
     api_key = get_api(CONST.RECRUIT_API)
     API_HOST = 'http://webservice.recruit.co.jp/hotpepper/gourmet/v1/'
     headers = {
@@ -196,35 +189,11 @@ def load_shop_info(lat,lng,range,model_hash):
         'charset': 'UTF-8',
         'Accept': '*/*'
     }
-    param = {
-        """
-        API parameters
-        
-        Params :
-            key : api_key
-            lat : latitude
-            lng : longitude
-            range : 1~5 : Search range from location(lat,lng)
-            order : 4 or other : Search base from recommendation/range
-                in this project, POST 'order' in True, False
-                so it must be translate True: 4 False: 0
-            count : 1~100 : result shop count (default 10)
-            format : 'json','xml' : data format (default xml)
-                in this project, parse xml to json has already been developed
-                so I use 'xml' format. But it is no better than using json format 
-        """
-        'key': f'{api_key}',
-        'lat': lat,
-        'lng': lng,
-        'range': range,
-        #'order':order,
-        'count':100,
-        'format':'xml',
-    }
+    kwargs['key'] = api_key
 
     query = '?'
-    keys = param.keys()
-    vals = param.values()
+    keys = kwargs.keys()
+    vals = kwargs.values()
 
     for key, val in zip(keys, vals):
         query += f'{key}={val}&'
@@ -234,135 +203,121 @@ def load_shop_info(lat,lng,range,model_hash):
     try:
         hot_pepper_response = requests.get(url, headers=headers)
     except Exception:
+        # API Error
         raise Exception
 
     shop_info_json = parsing_xml_to_json(hot_pepper_response)
     try:
-        shop_info_json = shop_info_json['results']['shop'] #****
+        shop_info_json = shop_info_json['results']['shop']  # ****
     except KeyError:
+        # shop errpr
         # API의 한계로 일본 외의 나라에서는 사용할 수 없다
         # 일본 내에서도 주변에 등록된 식당이 없다면 사용할 수 없을 것 같다
         # >> keyError:'shop' 발생함
         # 검색 결과가 없습니다 출력하면 좋을 듯 하다
-        raise 404
-
-    shop_info = []
-
-    for shop in shop_info_json:
-        temp = {
-            'shop_id': shop['id'],
-            'shop_name': check_unicode(shop['name']),
-            'shop_kana': check_unicode(shop['name_kana']),
-            'shop_access': check_unicode(shop['access']),
-            'shop_thumbnail': shop['logo_image'],
-            'shop_model_hash':model_hash
-        }
-        shop_info.append(temp)
-    return shop_info
-# 두 함수는 return은 다르지만 args가 중복되니 기능을 합칠 수 잇어보인다
-# API 호출을 분리시키면 될 듯
-def load_user_info(range,order,model_hash,current_lat,
-                   current_lng,selected_lat=None,selected_lng=None):
-    '''
-
-    '''
-    user_info_json = [True] # default
-    user_info = []
-    for user in user_info_json: #template for modularize
-        temp = {
-            'user_model_hash':model_hash,
-            'current_lat':current_lat,
-            'current_lng':current_lng,
-            'selected_lat':selected_lat,
-            'selected_lng':selected_lng,
-            'range':range,
-            'order':order,
-        }
-        user_info.append(temp)
-    return user_info
-
-# # # using
-# if selected_lat:
-#     load_user_info(range,order,model_hash,current_lat,current_lng,selected_lat,selected_lng)
-# else:
-#     load_user_info(range, order, model_hash, current_lat, current_lng)
-
-# views
-# # # 페이징 구현 이후 views.result 합치기
-def shop_show(request, model_hash):
-    '''
-
-    '''
-    try:
-        shop_list = models.ShopInfoModel.objects.filter(shop_model_hash=model_hash)
-        user_info = models.UserInfoModel.objects.get(user_model_hash=model_hash) # add code test num a1a1
+        return 0
     except:
-        raise "Cache Lost Error"
+        # detail: API Server error
+        raise HTTP('500')
 
-    # # # # paging code
-    # PAGING_POST_NUMBER = 4
-    # print(shop_list)
-    # page = request.GET.get('page')
-    # paginator = Paginator(shop_list, PAGING_POST_NUMBER)
-    # try:
-    #     page_object = paginator.page(page)
-    # except:
-    #     page=1
-    #     page_object = paginator.page(page)
-    # cont2 = {'shop_list': shop_list,
-    #      'page_object': page_object,
-    #      'paginator': paginator}
-    cont1 = user_info.__dict__ # add code test num a1a1
-    cont2 = {'shop_list':shop_list} # temp value for no paging
-    contexts = combine_dictionary(cont1,cont2)
-    return render(request, 'result.html', contexts )
+    return shop_info_json
 
-def direction_error(request):
+
+# def info_pack
+
+# def load_user_info
+
+# def shop_show
+
+def search_error(request,contexts):
     '''
 
     '''
-    return HttpResponse('direction error')
+    print('search err contexts')
+    print(contexts)
+    return render(request, 'result_error.html', contexts)
+
 
 def index(request):
     '''
 
     '''
     current_latlng = get_current_latlng()
+    api_key = get_api(CONST.GOOGLE_API)
+
+    combine_dictionary(current_latlng,{'api_key':api_key})
+
     return render(request, 'result_index.html', current_latlng)
 
 
+# def result
+
+# def update_database
+
+
+def detail(request):
+    if request.method == 'GET':
+        shop_id = request.GET.get('shop_id')
+        detail_info_json = hot_pepper_api(id=shop_id)
+        detail_info = info_pack([detail_info_json], SHOP_DETAIL_MODEL_FORM)
+        if not SHOP_DETAIL_MODEL_FORM.objects.filter(detail_shop_id=shop_id).exists():
+            # 데이터 중복 저장 시 오류 발생으로
+            # 이미 있는 데이터는 저장하지 않음
+            model_form_save(detail_info, SHOP_DETAIL_MODEL_FORM) #데이터 중복 오류 발생
+
+        detail_info = SHOP_DETAIL_MODEL_FORM.objects.get(detail_shop_id=shop_id)
+        contexts = detail_info.__dict__
+        return render(request,'result_detail.html',contexts)
+
+## ================
+
 def result(request): # for test code # add code test num a1a1
-    model_hash = cache.get('model_hash')
+    if request.method == 'GET':
+        # get GET method (move page)
+        searched_location, is_selected = update_database(request)
+        print('result() debug: GET method')
+        page = request.GET.get('page')
+        return shop_show(request, searched_location, is_selected=is_selected, page=page) ########################################!!
 
-    if request.POST.get('selectCurrentLocationRange') \
-    or request.POST.get('selectSelectedLocationRange'):
-        # 새로운 검색 요청을 받았을 때
-        print('result() debug: get POST')
-        model_hash = update_database(request)
-        return shop_show(request, model_hash)
+    elif request.method == 'POST':
+        # get POST method (new search request)
+        print('result() debug: POST method')
+        searched_location, is_selected = update_database(request) ########################################!!
+        if is_selected == 404:
+            return search_error(request, searched_location)
 
-    if model_hash is None:
-        print('result() debug: is model hash none')
+        # try:
+        return shop_show(request, searched_location, is_selected=is_selected)########################################!!
+        # no search
+        # except Exception:
+        #
+        #     print(Exception)
+        #     raise Exception('POST shop_show failed')
+
+    print('*' * 10)
+    print('*' * 10)
+    print('active this code??')
+    print('*' * 10)
+    print('*' * 10)
+
+    if model_hash is None:########################################!!
+        print('result() debug: model hash isNone')
         # 새로운 검색 요청을 받았을 때, 분기 수정 후 발생하지 않고 있음
-        model_hash = update_database(request)
-        return shop_show(request, model_hash)
+        model_hash = update_database(request)########################################!!
+        return shop_show(request, model_hash)########################################!!
     else:
         # 페이지 이동 시 작동할 것으로 추정
-        print('result() debug: is model hash')
-        return shop_show(request, model_hash)
+        print('result() debug: model_hash is True')########################################!!
+        return shop_show(request, model_hash)########################################!!
 
 
 def update_database(request):
     '''
     A function that save models by POST vals
     '''
-    model_hash = make_hash()
-    cache.set('model_hash', model_hash)
     selected_lat = None
     selected_lng = None
-
-    order = 1  # temp value
-
+    is_selected = False
     if request.method == 'POST':
         # save user info
         current_latlng = get_current_latlng()
@@ -370,27 +325,173 @@ def update_database(request):
         current_lng = current_latlng['current_lng']
 
         if request.POST.get('selectCurrentLocationRange'):
-            range = request.POST['selectCurrentLocationRange']
-            # order = request.POST['selectCurrentLocationOrder']
+            range_ = request.POST['selectCurrentLocationRange']
+            order = request.POST['selectCurrentLocationOrder']
             lat = current_lat
             lng = current_lng
         elif request.POST.get('selectSelectedLocationRange'):
-            range = request.POST['selectSelectedLocationRange']
-            # order = request.POST['selectSelectedLocationOrder']
-            selected_lat = 34.67 # temp value
-            selected_lng = 135.52 # temp value
+            range_ = request.POST['selectSelectedLocationRange']
+            order = request.POST['selectSelectedLocationOrder']
+            selected_lat = request.POST['selected_lat']
+            selected_lng = request.POST['selected_lng']
             lat = selected_lat
             lng = selected_lng
+            is_selected = True
         else:
-            raise 'Direction Error'
-
-        user_info = load_user_info(range, order, model_hash, current_lat, current_lng, selected_lat, selected_lng)
-        model_form_save(user_info,models.UserInfoModel)
+            raise 'Direction Error in update_database'
+        searched_location = {'searched_lat': lat,
+                             'searched_lng': lng,
+                             'current_lat': current_lat,
+                             'current_lng': current_lng,
+                             'selected_lat': selected_lat,
+                             'selected_lng': selected_lng,}
+        print(searched_location)
+        #cache set for GET method
+        cache.set('searched_location', searched_location)
+        user_info = load_user_info(range_, order, searched_location)
+        model_form_save(user_info, USER_INFO_MODEL_FORM)
 
         # save shop info to show
-        shop_info = load_shop_info(lat,lng,range,model_hash)
-        model_form_save(shop_info, models.ShopInfoModel)
-    return model_hash
-        # context를 어떻게 집어넣어야 show가 가능하지? 해결
-        # def result에서는 이제 정보 보내주기만 하면 될 듯 하다
+        shop_info_json = hot_pepper_api(lat=lat, lng=lng, range=range_, count=100)#나중에추가order=order
+        if not shop_info_json:
+            # no search result
+            return searched_location, 404
+                # {'current_lat': current_lat,
+                #     'current_lng': current_lng,
+                #     'selected_lat': selected_lat,
+                #     'selected_lng': selected_lng}
+        shop_info = info_pack(shop_info_json,
+                              SHOP_INFO_MODEL_FORM, lat, lng) ########################################!!
+        model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
+        return searched_location, is_selected########################################!!
 
+    elif request.method == 'GET':
+        searched_location = cache.get('searched_location')
+        print(searched_location['selected_lat'],type(searched_location['selected_lat']))
+        print(searched_location)
+        if searched_location['selected_lat']:
+            is_selected = True
+        return searched_location, is_selected
+
+def info_pack(info_json, model_form,lat=None,lng=None):########################################!!
+    info_package = []
+    if model_form == SHOP_DETAIL_MODEL_FORM:
+        for shop in info_json:
+            model_template = {
+                # 필수요구
+                'detail_shop_id': shop['id'],
+                'detail_name': check_unicode(shop['name']),
+                'detail_address': check_unicode(shop['address']),
+                'detail_image': shop['photo']['pc']['l'],
+                'detail_time': shop['open'],
+                # + info
+                'detail_kana': check_unicode(shop['name_kana']),
+                'detail_access': check_unicode(shop['access']),
+                'detail_shop_memo': check_unicode(shop['shop_detail_memo']),
+                'detail_budget_memo': check_unicode(shop['budget_memo']),
+                'detail_lat': shop['lat'],
+                'detail_lng': shop['lng'],
+                'detail_url': shop['urls']['pc'],
+                'detail_card': shop['card'],
+                'detail_genre': shop['genre']['name'],
+                'detail_genre_catch': shop['genre']['catch'],
+                'detail_price_average': shop['budget']['average'],
+                'detail_station': shop['station_name'],
+            }
+            info_package.append(model_template)
+    elif model_form == SHOP_INFO_MODEL_FORM:
+        for shop in info_json:
+            model_template = {
+                'shop_id': shop['id'],
+                'shop_name': check_unicode(shop['name']),
+                'shop_kana': check_unicode(shop['name_kana']),
+                'shop_access': check_unicode(shop['access']),
+                'shop_thumbnail': shop['logo_image'],
+                'searched_lat': lat,
+                'searched_lng': lng,
+            }
+            info_package.append(model_template)
+
+    return info_package
+
+
+# 두 함수는 return은 다르지만 args가 중복되니 기능을 합칠 수 잇어보인다
+# API 호출을 분리시키면 될 듯 **kwargs로 하면 될거같은데
+def load_user_info(range_, order, searched_location):
+    '''
+
+    '''
+    current_lat = searched_location['current_lat']
+    current_lng = searched_location['current_lng']
+    selected_lat = searched_location['selected_lat']
+    selected_lng = searched_location['selected_lng']
+
+    user_info_json = [True] # default
+    user_info = []
+    for user in user_info_json: #template for modularize
+        model_template = {
+            'current_lat': current_lat,
+            'current_lng': current_lng,
+            'selected_lat': selected_lat,
+            'selected_lng': selected_lng,
+            'range': range_,
+            'order': order,
+        }
+        user_info.append(model_template)
+    return user_info
+
+
+# views
+# # # 페이징 구현 이후 views.result 합치기
+def shop_show(request, searched_location, **kwargs):########################################!!
+    '''
+
+    '''
+    if kwargs.get('is_selected'):
+        is_selected = kwargs['is_selected']
+
+
+    # 여기 트라이 있었음
+    searched_lat = searched_location['searched_lat']
+    searched_lng = searched_location['searched_lng']
+    # load shop/user info from database by searchedlatlng and userlatlng
+    shop_list = SHOP_INFO_MODEL_FORM.objects.filter(searched_lat=searched_lat, searched_lng=searched_lng)########################################!!
+    if is_selected:
+        # in case search by selected
+        user_info = USER_INFO_MODEL_FORM.objects.get(selected_lat=searched_lat, selected_lng=searched_lng)########################################!!
+    elif not is_selected:
+        # in case search by current
+        user_info = USER_INFO_MODEL_FORM.objects.get(current_lat=searched_lat, current_lng=searched_lng)
+    # 여기 익셉션 있었음 NoSearchResult하려면 있어야함
+    # except Exception: raise Exception('NoSearchResult')
+
+    # paging =================================
+    if kwargs.get('page'):
+        # if got page number from request.GET['page']
+        page = kwargs['page']
+    else:
+        # default page number
+        page = 1
+
+    PAGING_POST_NUMBER = 10  # page 마다 출력 상점 수
+    paginator = Paginator(shop_list, PAGING_POST_NUMBER)
+    try:
+        page_object = paginator.page(page)
+    except:
+        # invalid page number
+        # it has url print err
+        page = paginator.num_pages
+        page_object = paginator.page(page)
+    # ========================================
+
+    cont1 = user_info.__dict__
+    cont2 = {
+        'shop_list': shop_list,
+        'page_object': page_object,
+        'paginator': paginator,
+        'len_page_objects': len(page_object)*page_object.number,
+        'len_shop_list': len(shop_list),
+    }
+    # code update test
+    contexts = combine_dictionary(cont1, cont2)
+    return render(request, 'result.html', contexts)

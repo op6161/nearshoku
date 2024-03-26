@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+    {% load static %}
+        <script type="text/javascript" src="{% static 'js/detail.js' %}"></script>
+{% block header %}
+    {% include 'header.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="">
+    {% include 'go_back_button.html' %}
+    <div class="detail-name-box">
+        <p class="text-subhead text-white d-flex justify-content-center noto-serif-font">
+            {{ detail_kana }}
+        </p>
+        <p class="text-head text-white d-flex justify-content-center noto-serif-font">
+            {{ detail_name }}
+        </p>
+    </div>
+    <br>
+    <hr class="pink-line">
+    <div class="row">
+        <div class="container detail-image col">
+            <img src="{{ detail_image }}">
+        </div>
+        <div class="detail-timetable col">
+            <label class="text-white">
+                영업시간
+                <!--여러줄일경우 for문으로 하면 좋을듯-->
+            </label>
+            <label class="text-white">
+                {{ detail_time }}
+            </label>
+        </div>
+    </div>
+    <hr class="pink-line">
+    <div class="detail-address">
+        <label class="text-white">
+            {{ detail_address }}
+            <br>
+            <!--여러줄일경우 for문으로 하면 좋을듯-->
+            {{ detail_access }}
+        </label>
+    </div>
+    <hr class="pink-line">
+    <div class="container detail-map-buttons">
+
+    </div>
+    <div class="container detail-map-modal">
+
+    </div>
+    <br>
+</div>
+{% endblock %}
