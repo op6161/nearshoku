@@ -22,6 +22,9 @@
     overflow:hidden;
     transition:height ease-out 1s 0s;
 }
+.clickable{
+    cursor:pointer;
+}
 /*line-style*/
 .pink-line{
     background:pink;
