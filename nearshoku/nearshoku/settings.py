@@ -28,10 +28,10 @@ djagno_secret_key = os.environ.get('SECRET_KEY')
 SECRET_KEY = djagno_secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+#DEBUG = True
+DEBUG = False
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
