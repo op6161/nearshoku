@@ -143,7 +143,6 @@ def update_database(request):
                              'range': range_,
                              'order': order,}
         cache.set('searched_location', searched_location)
-        print(searched_location)
 
         shop_info_json, state = hot_pepper_api(lat=lat, lng=lng, range=range_
                                         , order=order, count=100,)
