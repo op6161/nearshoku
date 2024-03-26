@@ -53,7 +53,7 @@ def check_unicode(text):
         return None
     return text.replace('\u3000', ' ')
 
-
+# 필요없어짐
 def make_hash():
     """
     Make hash key from current time
