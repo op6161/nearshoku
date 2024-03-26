@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
 {% block body %}
-{% load static %}
-{#     index.js requirements#}
+    {% load static %}
+    {#     index.js requirements#}
     <script type="text/javascript">
-    const current_lat = {{ current_lat }}
-    const current_lng = {{ current_lng }}
+        const current_lat = {{ current_lat }}
+        const current_lng = {{ current_lng }}
     </script>
     <script defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap&region=JP&language=ja"></script>
     <script src="{% static 'js/index.js' %}"></script>
-{#===============================#}
+    {#===============================#}
     <div>
-        <br><br><br>
+        <br>
+        <br>
+        <br>
     </div>
     <div class="container bg-dark index-content-box">
         <form id="byCurrent" method="POST" action="result">
@@ -97,4 +99,5 @@
         </form>
     </div>
 {% endblock %}
+{# 스마트폰 환경에서 사용하려면 하단에 여백이 더 필요해 보임 #}
 {#Search By Selected Location #}

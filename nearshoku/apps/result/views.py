@@ -492,6 +492,6 @@ def shop_show(request, searched_location, **kwargs):############################
         'len_page_objects': len(page_object)*page_object.number,
         'len_shop_list': len(shop_list),
     }
-
+    # code update test
     contexts = combine_dictionary(cont1, cont2)
     return render(request, 'result.html', contexts)
