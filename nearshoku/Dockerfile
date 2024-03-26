@@ -1,0 +1,15 @@
+FROM python:3.10
+WORKDIR /usr/src/app
+
+## install packages
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
+## copy all src files
+COPY . .
+
+## run the apps on the port 8080
+EXPOSE 8080
+
+## gunicorn run server on the port 8000
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "nearshoku.wsgi:application"]
