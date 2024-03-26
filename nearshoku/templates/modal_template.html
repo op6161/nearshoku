@@ -1,0 +1,29 @@
+{# require bootstrap.css,bootstrap.js,jquery #}
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{#contentid#}}">
+        {% block modal-button %}
+            {# modal popup button name #}
+        {% endblock %}
+</button>
+
+<div class="modal fade" id="modal-map" tabindex="-1" aria-labelledby="{# content-label #}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable detail-map">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="{{#content-id#}}">
+                    {% block modal-title %}
+                        {# modal popup title #}
+                    {% endblock %}
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label class="text-black">
+                    {% block modal-content %}
+                        {# modal popup content #}
+                    {% endblock %}
+                </label>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>

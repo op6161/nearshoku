@@ -32,7 +32,6 @@ class ShopDetailModel(BaseModel):
     """
     #
     detail_shop_id = models.CharField(max_length=20)
-    #여기도 모델 해시가 필요한지는 모르겠군
     # 필수
     detail_name = models.CharField(max_length=100)
     detail_address = models.CharField(max_length=100)
@@ -45,8 +44,12 @@ class ShopDetailModel(BaseModel):
     detail_budget_memo = models.CharField(max_length=100,null=True)
     detail_lat = models.FloatField()
     detail_lng = models.FloatField()
-    detail_url = models.CharField(max_length=100) # urls:pc
-    detail_card = models.CharField(max_length=10)
+    detail_url = models.CharField(max_length=100, null=True) # urls:pc
+    detail_card = models.CharField(max_length=10, null=True)
+    detail_genre = models.CharField(max_length=50, null=True)
+    detail_genre_catch = models.CharField(max_length=50, null=True)
+    detail_price_average = models.CharField(max_length=50, null=True)
+    detail_station = models.CharField(max_length=30, null=True)
 
 
 
@@ -61,4 +64,4 @@ class UserInfoModel(BaseModel):
     selected_lat = models.FloatField(null=True)
     selected_lng = models.FloatField(null=True)
     range = models.IntegerField()
-    order = models.BooleanField()
+    order = models.IntegerField()

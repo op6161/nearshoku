@@ -1,0 +1,30 @@
+<div class="container location-box col border
+border-secondary-subtle w-75">
+    <label class="text-white text-subhead">
+        Current Location
+    </label>
+    <div>
+        <label class="text-white text-location">
+        緯度 {{current_lat}}
+        </label>
+        <label class="text-white text-location">
+            経度 {{current_lng}}
+        </label>
+    </div>
+</div>
+{% if selected_lat %}
+    <div class="container location-box col border
+    border-secondary-subtle w-75">
+        <label class="text-white text-subhead">
+            Selected Location
+        </label>
+        <div>
+            <label class="text-white text-location">
+            緯度 {{selected_lat}}
+            </label>
+            <label class="text-white text-location">
+                経度 {{selected_lng}}
+            </label>
+        </div>
+    </div>
+{% endif %}

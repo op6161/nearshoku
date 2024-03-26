@@ -1,38 +1,60 @@
 {% extends 'base.html' %}
-
-{% block title %}
-    <title>result_detail title!</title>
+    {% load static %}
+        <script type="text/javascript" src="{% static 'js/detail.js' %}"></script>
+{% block header %}
+    {% include 'header.html' %}
 {% endblock %}
 
 {% block body %}
-{% load static %}
-<div class="wrapper">
-    <h1>this is detail page !!!</h1>
-    <div class="return">
-        <button>
-            목록
-        </button>
+<div class="">
+    {% include go_back_button.html %}
+{#    <div class="goback-button-box">#}
+{#        <button class="btn btn-secondary"#}
+{#                onclick="history.back()">#}
+{#            목록#}
+{#        </button>#}
+{#    </div>#}
+    <div class="detail-name-box">
+        <p class="text-subhead text-white d-flex justify-content-center noto-serif-font">
+            {{ detail_kana }}
+        </p>
+        <p class="text-head text-white d-flex justify-content-center noto-serif-font">
+            {{ detail_name }}
+        </p>
     </div>
-    <h1>필수정보</h1>
-    매장이름:
-    {{ detail_name }}<br>
-    주소:
-    {{ detail_address }}<br>
-    영업시간:
-    {{ detail_time }}<br>
-    매장사진:
-    <img src="{{ detail_image }}"><br>
-    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-<br>
-    <h1>추가정보</h1>>
-    이름카나
-    {{ detail_kana }}<br>
-    액세스
-    {{ detail_access }}<br>
-    키워드
-    {{ detail_keyword }}<br>
-    매장위치
-    {{ detail_lat }} / {{ detail_lng }}<br>
-    매장홈페이지
-    {{ detail_url }}<br>
+
+    <br>
+    <hr class="pink-line">
+    <div class="row">
+        <div class="container detail-image col">
+            <img src="{{ detail_image }}">
+        </div>
+        <div class="detail-timetable col">
+            <label class="text-white">
+                영업시간
+                <!--여러줄일경우 for문으로 하면 좋을듯-->
+            </label>
+            <label class="text-white">
+                {{ detail_time }}
+            </label>
+        </div>
+    </div>
+    <hr class="pink-line">
+    <div class="detail-address">
+        <label class="text-white">
+            {{ detail_address }}
+            <br>
+            <!--여러줄일경우 for문으로 하면 좋을듯-->
+            {{ detail_access }}
+        </label>
+    </div>
+    <hr class="pink-line">
+    <div class="container detail-map-buttons">
+
+    </div>
+    <div class="container detail-map-modal">
+
+    </div>
+    <br>
 </div>
 {% endblock %}
