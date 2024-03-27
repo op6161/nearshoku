@@ -1,0 +1,69 @@
+/* fonts */
+.rubik-font {
+  font-family: "Rubik Scribble", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+.noto-serif-font {
+  font-family: "Noto Serif JP", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+/*====== style ======*/
+/*script*/
+.detail-info{
+    height:0px;
+    overflow:hidden;
+    transition:height ease-out 1s 0s;
+}
+.detail-map{
+    height:0px;
+    overflow:hidden;
+    transition:height ease-out 1s 0s;
+}
+.clickable{
+    cursor:pointer;
+}
+/*line-style*/
+.pink-line{
+    background:pink;
+    height:1px;
+    border:0;
+}
+.white-line{
+    background:pink;
+    height:1px;
+    border:0;
+    width:50%;
+}
+/*box-style*/
+.location-box{
+
+}
+.current-submit-box{
+
+}
+
+
+/*text-style*/
+.text-head{
+    font-size:40px;
+}
+
+.text-subhead{
+    font-size:20px;
+}
+
+.text-location{
+    font-size:12px;
+}
+/* google */
+#map{
+    height:300px;
+}
+/* img */
+.shop-thumbnail{
+    width:69px;
+    height:69px;
+}

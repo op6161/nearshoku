@@ -15,19 +15,8 @@ DEBUG = False
 if DEBUG:
     ALLOWED_HOSTS = []
     SECURE_SSL_REDIRECT = False
-    # SESSION_COOKIE_SECURE = False
-    # CSRF_COOKIE_SECURE = False
-    # SECURE_HSTS_PRELOAD = False
-    # SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 else:
-    # deploy settings
     ALLOWED_HOSTS = ["*"]
-    SECURE_HSTS_SECONDS = 31536000
-    #SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
 
 # Application definition
@@ -49,6 +38,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "nearshoku.urls"
@@ -107,7 +98,16 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles") # manage.py collectstatic
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+import whitenoise
+#STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# STORAGES = {
+#     "staticfiles": {
+#         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+#     },
+# }
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

@@ -31,5 +31,6 @@ urlpatterns = [
 # handler500='nearshoku.views.server_error_page'
 
 from . import settings
+from django.conf.urls.static import static
 if not settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
