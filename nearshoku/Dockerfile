@@ -9,7 +9,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 ## run the apps on the port 8080
-EXPOSE 8080
+EXPOSE 8000
 
 ## gunicorn run server on the port 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "nearshoku.wsgi:application"]

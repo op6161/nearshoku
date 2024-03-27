@@ -24,7 +24,7 @@
                         <div class="container row">
                             <div class="col-4">
                                 {% if shop.shop_thumbnail == 'https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif'%}
-                                    <img class="shop-thumbnail" src="{% static 'others/img/no_thumbnail.png' %}">
+                                    <img class="shop-thumbnail" src="{% static 'others/no_thumbnail.png' %}">
                                 {% else %}
                                     <img class="shop-thumbnail" src="{{shop.shop_thumbnail}}">
                                 {% endif %}
