@@ -1,3 +1,8 @@
+# project ignore
+.env
+db.sqlite3
+deploy/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
