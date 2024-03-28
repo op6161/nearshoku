@@ -218,6 +218,8 @@ def result(request):
 
     # POST method (new search request)
     elif request.method == 'POST':
+        # new search method > db clear
+        SHOP_INFO_MODEL_FORM.objects.all().delete()
         searched_location, state = update_database(request)
         page = 1
 
