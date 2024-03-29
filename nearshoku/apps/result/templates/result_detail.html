@@ -9,27 +9,36 @@
 <div class="">
     {% include 'go_back_button.html' %}
     <div class="detail-name-box">
-        <p class="text-subhead text-white d-flex justify-content-center noto-serif-font">
+        <h3 class="text-white d-flex justify-content-center noto-serif-font">
             {{ detail_kana }}
-        </p>
-        <p class="text-head text-white d-flex justify-content-center noto-serif-font">
+        </h3>
+        <h1 class="text-white d-flex justify-content-center noto-serif-font">
             {{ detail_name }}
-        </p>
+        </h1>
     </div>
     <br>
     <hr class="pink-line">
     <div class="row">
-        <div class="container detail-image col">
+        <div class="">
+        </div>
+        <div class="container detail-image col-md">
             <img src="{{ detail_image }}">
         </div>
-        <div class="detail-timetable col">
+        <div class="detail-timetable col-md">
+            <h4 class="text-white noto-serif-font">
+                営業時間
+            </h4>
             <label class="text-white">
-                영업시간
-                <!--여러줄일경우 for문으로 하면 좋을듯-->
+                {% for time in detail_time %}
+                    <div class="row">
+                        <p class="text-white">
+                            {{ time }}
+                        </p>
+                    </div>
+                {% endfor %}
             </label>
-            <label class="text-white">
-                {{ detail_time }}
-            </label>
+        </div>
+        <div class="col-2">
         </div>
     </div>
     <hr class="pink-line">

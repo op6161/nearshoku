@@ -335,6 +335,7 @@ def info_pack(info_json, model_form, lat=None, lng=None):
     '''
     info_package = []
     if model_form == SHOP_DETAIL_MODEL_FORM:
+        info_json = detail_processing(info_json)
         for shop in info_json:
             model_template = {
                 # 필수요구
@@ -372,3 +373,12 @@ def info_pack(info_json, model_form, lat=None, lng=None):
             info_package.append(model_template)
 
     return info_package
+
+def detail_processing(info_json):
+    shop = info_json[0]
+    temp_text = shop['open'].replace('）','）♩')
+    temp_list = temp_text.split('♩')
+    shop['open'] = temp_list
+    print(shop['open'])
+    print(shop)
+    return [shop]
