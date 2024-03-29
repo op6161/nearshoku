@@ -1,19 +1,17 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}
     <title>Search Error!</title>
 {% endblock %}
-{% load static %}
 
-<script type="text/javascript">
-
-</script>
 {% block body %}
-    {% include 'go_back_button.html' %}
-    <div class="container-xxl">
-        <p class="text-white-50">
+{% include 'go_back_button.html' %}
+    <div class="container text-center">
+        <div class="mx-auto error" data-text="404">404</div>
+        <p class="lead text-white text-white-800 mb-5">
             No Search Result
         </p>
-        {% if selected_lat %}
+        {% if is_selected %}
             <label class="text-white-50">
                 From You Selected!
             </label>
@@ -22,5 +20,12 @@
                 From Around You!
             </label>
         {% endif %}
+    </div>
+     <div class="min-vh-100 justify-content-center">
+            <div class="empty-form">
+            </div>
+        </div>
+    <div class="data">
+        <input type="hidden" value="{{is_selected}}">
     </div>
 {% endblock %}

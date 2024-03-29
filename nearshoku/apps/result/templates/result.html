@@ -1,22 +1,17 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/result.css" %}">
+{% endblock %}
 
 {% block body %}
-    {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static "css/result.css" %}">
-    <div class="">
-{#        {% include 'go_back_button.html' %}#}
-        <br>
+    <div class="container">
+        <div class="menu">
 
-        <!-- shops/all -->
-        <div class="how-many-shops align-content-center">
-            <p class="text-white d-flex justify-content-center">
-            {{ len_page_objects }} / {{ len_shop_list }}
-            </p>
         </div>
 
-        <div class="shops-box">
+        <div class="container shops-box">
     <!--div 사이즈를 고정하고 이미지 크기를 맞추면 좋을 듯 함-->
-    {#        {% for shop in shop_list %} 페이징 구현 이전 임시#}
             {% for shop in page_object %}
                 <form method="get" action='detail' name="shop-form-{{forloop.counter}}">
                     <div class="container shop-box"
@@ -45,30 +40,42 @@
                         <br>
                         <div class="detail-button-box">
                             <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
-    {#                        <input class="btn-secondary w-50"#}
-    {#                                type="submit" value="show detail">#}
                         </div>
                     </div>
                 </form>
                 <hr class="pink-line">
-                <br>
-                <br>
             {% endfor %}
         </div>
-        <ul class="pagination justify-content-center">
-            {% for page in paginator.page_range %}
-                {% if page == page_object.number %}
-                    <li class="page-item active" aria-current="page">
-                       <a class ="page-link" href="?page={{page}}">
-                           {{page}}
-                       </a></li>
-                {% else %}
-                    <li class="page-item" aria-current="page">
-                        <a class ="page-link" href="?page={{page}}">
-                            {{page}}]
-                        </a></li>
-                {% endif %}
-            {% endfor %}
-        </ul>
+
+        <div class="result-nav row">
+        <!--nav bar-->
+            <div class="result-nav-up">
+                <!-- page/all number -->
+                <div class="how-many-shops align-content-center">
+                    <label class="text-white d-flex justify-content-center">
+                        {{ len_page_objects }} / {{ len_shop_list }}
+                    </label>
+                </div>
+            </div>
+            <div class="result-nav-down">
+                <ul class="pagination justify-content-center">
+                    {% for page in paginator.page_range %}
+                        {% if page == page_object.number %}
+                            <li class="page-item active" aria-current="page">
+                               <a class ="page-link">
+                                   {{page}}
+                               </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item" aria-current="page">
+                                <a class ="page-link" href="?page={{page}}">
+                                    {{page}}]
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
 {% endblock %}

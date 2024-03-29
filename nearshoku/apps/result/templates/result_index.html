@@ -1,27 +1,46 @@
 {% extends 'base.html' %}
-{% block header %}
-    {% include 'header.html' %}
-{% endblock %}
-{% block body %}
-    {% load static %}
+{% load static %}
+{% block head %}
     <!--get location-->
     <script src="{% static 'js/index.js' %}"></script>
     <!--google map api-->
-    <script async src="http://maps.googleapis.com/maps/api/js?key={{ api_key }}&region=JP&language=ja&callback=initMap&loading=async"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&region=JP&language=ja&callback=initMap&loading=async"></script>
     <!--google map api init-->
-
-    <div>
-        <br>
-        <br>
-        <br>
-    </div>
+{% endblock %}
+{% block body %}
     <div class="container bg-dark index-content-box">
     <!--search by current location form-->
         <form id="byCurrent" method="POST" action="result">
             {% csrf_token %}
-            <div class="container current-location-box">
-                <div class="container current-range-box">
-                    <select name="selectCurrentLocationRange" class="form-select">
+            <div class="container current-location-box row">
+                <div class="checkboxes row p-3">
+                    <div class="col"></div>
+                    <div class="col form-switch ">
+                        <input type="checkbox" id="cardCheck"
+                        class="form-check-input">
+                        <label class="form-check-label text-white" for="check1">
+                            Card
+                        </label>
+                    </div>
+                    <div class="col form-switch">
+                        <input type="checkbox" id="lunchCheck"
+                               class="form-check-input">
+                        <label class="form-check-label text-white" for="check2">
+                            Lunch
+                        </label>
+                    </div>
+                    <div class="col form-switch">
+                        <input type="checkbox" id="Open"
+                               class="form-check-input">
+                        <label class="form-check-label text-white" for="check3">
+                            Open
+                        </label>
+                    </div>
+                    <div class="col"></div>
+                </div>
+                <div class="container current-range-box col-10 w-75">
+                    <select name="selectCurrentLocationRange"
+                            class="form-select select-picker" data-style="btn-primary">
                         <!-- select location -->
                         <option selected value="1">Searching Range from your location</option>
                         <option value="1">300m以内</option>
@@ -31,24 +50,29 @@
                         <option value="5">3km以内</option>
                     </select>
                 </div>
-                <div class="container current-order-box">
+                <div class="container current-order-box row p-1">
                     <!--select order -->
-                    <!--by distance-->
-                    <input type="radio" class="btn-check" id="CurrentOrderRange"
+                    <div class="order-button col">
+                        <!--by distance-->
+                        <input type="radio" class="btn-check" id="CurrentOrderRange"
                            name="selectCurrentLocationOrder" value="1" checked>
-                    <label class="btn btn-outline-primary" for="CurrentOrderRange">距離順</label>
-                    <div class="vr"></div>
-                    <!--by recommend-->
-                    <input type="radio" class="btn-check" id="CurrentOrderBest"
+                        <label class="btn btn-lg btn-outline-primary pull-right" for="CurrentOrderRange">&nbsp&nbsp 距離順 &nbsp&nbsp</label>
+                    </div>
+                    <div class="order-button col">
+                        <!--by recommend-->
+                        <input type="radio" class="btn-check" id="CurrentOrderBest"
                            name="selectCurrentLocationOrder" value="4">
-                    <label class="btn btn-outline-success" for="CurrentOrderBest">オススメ順</label>
+                        <label class="btn btn-lg btn-outline-success" for="CurrentOrderBest">オススメ順</label>
+                    </div>
                 </div>
-                <div class="container current-submit-box">
-                    <!--submit-->
-                    <input type="submit"
-                           class="btn btn-secondary"
-                           id="submitCurrentLocation"
-                           value="search by current location">
+                <div class="container current-submit-box col-10 p-3">
+                    <div class="d-flex justify-content-center">
+                        <!--submit-->
+                        <input type="submit"
+                               class="btn btn-secondary"
+                               id="submitCurrentLocation"
+                               value="search by current location">
+                    </div>
                 </div>
             </div>
             <div id="location_data">
@@ -112,5 +136,6 @@
         </form>
     </div>
 {% endblock %}
+
 {# 스마트폰 환경에서 사용하려면 하단에 여백이 더 필요해 보임 #}
 {#Search By Selected Location #}

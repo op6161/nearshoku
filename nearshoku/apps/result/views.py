@@ -183,6 +183,10 @@ def err_direct(request,msg,state=500):
     '''
     if state == 404:
         contexts = {}
+        searched_location = cache.get('searched_location')
+        if searched_location['selected_lat']:
+            contexts = {'is_selected': True}
+
         return render(request, 'result_error.html', contexts)
     else:
         contexts = {'error_code': state,
