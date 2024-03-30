@@ -404,6 +404,7 @@ def result(request):
         # new search method > db clear
         request.session.flush()
         searched_location, state = update_database(request)
+        page=1
         return redirect('result')
 
     # bad request
@@ -509,8 +510,8 @@ def update_database(request):
     if request.method == 'POST':
         range_ = request.POST['range_select']
         order = request.POST['order_select']
-        current_lng = request.POST['selected_lng']
-        current_lat = request.POST['selected_lat']
+        current_lng = request.POST['current_lng']
+        current_lat = request.POST['current_lat']
 
         if request.POST.get('selected_lat'):
             selected_lat = request.POST['selected_lat']
