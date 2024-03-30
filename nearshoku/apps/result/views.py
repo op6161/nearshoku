@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.core.cache import cache
 from . import models
@@ -336,62 +337,7 @@ def hot_pepper_api(**kwargs):
 
 
 # ORM
-def update_database(request):
-    '''
-    Save to DB form models
 
-    Returns:
-        searched_location: dict: search arguments dictionary
-        error_state: int: 200, 400, 404
-    '''
-    selected_lat = None
-    selected_lng = None
-    if request.method == 'POST':
-        if request.POST.get('selectCurrentLocationRange'):
-            range_ = request.POST['selectCurrentLocationRange']
-            order = request.POST['selectCurrentLocationOrder']
-            current_lng = request.POST['CurrentLat']
-            current_lat = request.POST['CurrentLng']
-            lat = current_lat
-            lng = current_lng
-        elif request.POST.get('selectSelectedLocationRange'):
-            range_ = request.POST['selectSelectedLocationRange']
-            order = request.POST['selectSelectedLocationOrder']
-            selected_lat = request.POST['selected_lat']
-            selected_lng = request.POST['selected_lng']
-            current_lng = request.POST['BySelectedCurrentLng']
-            current_lat = request.POST['BySelectedCurrentLat']
-            lat = selected_lat
-            lng = selected_lng
-        else:
-            return {}, 400
-
-        searched_location = {'searched_lat': lat,
-                             'searched_lng': lng,
-                             'current_lat': current_lat,
-                             'current_lng': current_lng,
-                             'selected_lat': selected_lat,
-                             'selected_lng': selected_lng,
-                             'range': range_,
-                             'order': order,}
-        cache.set('searched_location', searched_location)
-
-        shop_info_json, state = hot_pepper_api(lat=lat, lng=lng, range=range_
-                                        , order=order, count=100,)
-        if not shop_info_json:
-            return searched_location, 404
-
-        shop_info = info_pack(shop_info_json,
-                              SHOP_INFO_MODEL_FORM, lat, lng)
-        model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
-        return searched_location, 200
-
-    elif request.method == 'GET':
-        searched_location = cache.get('searched_location')
-        return searched_location, 200
-
-    else:
-        return {}, 400
 
 
 # error
@@ -456,17 +402,17 @@ def result(request):
     # POST method (new search request)
     elif request.method == 'POST':
         # new search method > db clear
-        SHOP_INFO_MODEL_FORM.objects.all().delete()
+        request.session.flush()
         searched_location, state = update_database(request)
-        page = 1
+        return redirect('result')
 
     # bad request
     else:
         searched_location = {}
         state = 400
-
     if state == 200:
         return result_show(request, searched_location, page=page)
+
 
     else:
         error_message = err_check(state)
@@ -491,7 +437,7 @@ def result_show(request, searched_location, **kwargs):  ########################
     # load shop/user info from database by searchedlatlng and userlatlng
     # 여기 트라이 있었음
     shop_list = SHOP_INFO_MODEL_FORM.objects.filter(searched_lat=searched_lat, searched_lng=searched_lng)
-
+    shop_list = request.session.get('shop_info')
     # 여기 익셉션 있었음 NoSearchResult하려면 있어야함
     # except Exception: raise Exception('NoSearchResult')
 
@@ -515,6 +461,7 @@ def result_show(request, searched_location, **kwargs):  ########################
     # ========================================
 
     contexts = {
+        'shop_list':shop_list,
         'page_object': page_object,
         'paginator': paginator,
         'len_page_objects': len(page_object) * page_object.number,
@@ -550,6 +497,61 @@ def detail(request):
         # Bad Request
         return err_direct(request, 'Bad Request', 400)
 
+def update_database(request):
+    '''
+    Save to DB form models
+
+    Returns:
+        searched_location: dict: search arguments dictionary
+        error_state: int: 200, 400, 404
+    '''
+
+    if request.method == 'POST':
+        range_ = request.POST['range_select']
+        order = request.POST['order_select']
+        current_lng = request.POST['selected_lng']
+        current_lat = request.POST['selected_lat']
+
+        if request.POST.get('selected_lat'):
+            selected_lat = request.POST['selected_lat']
+            selected_lng = request.POST['selected_lng']
+            lat = selected_lat
+            lng = selected_lng
+
+        else:
+            selected_lat = None
+            selected_lng = None
+            lat = current_lat
+            lng = current_lng
+
+        searched_location = {'searched_lat': lat,
+                             'searched_lng': lng,
+                             'current_lat': current_lat,
+                             'current_lng': current_lng,
+                             'selected_lat': selected_lat,
+                             'selected_lng': selected_lng,
+                             'range': range_,
+                             'order': order,}
+        cache.set('searched_location', searched_location)
+
+        shop_info_json, state = hot_pepper_api(lat=lat, lng=lng, range=range_
+                                        , order=order, count=100,)
+        if not shop_info_json:
+            return searched_location, 404
+
+        shop_info = info_pack(shop_info_json,
+                              SHOP_INFO_MODEL_FORM, lat, lng)
+        request.session['shop_info'] = shop_info
+
+        model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
+        return searched_location, 200
+
+    elif request.method == 'GET':
+        searched_location = cache.get('searched_location')
+        return searched_location, 200
+
+    else:
+        return {}, 400
 
 def info_pack(info_json, model_form, lat=None, lng=None):
     '''

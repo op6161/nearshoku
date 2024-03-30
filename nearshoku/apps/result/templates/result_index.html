@@ -39,7 +39,7 @@
                     <div class="col"></div>
                 </div>
                 <div class="container current-range-box col-10 w-75">
-                    <select name="selectCurrentLocationRange"
+                    <select name="range_select"
                             class="form-select select-picker" data-style="btn-primary">
                         <!-- select location -->
                         <option selected value="1">Searching Range from your location</option>
@@ -55,13 +55,13 @@
                     <div class="order-button col">
                         <!--by distance-->
                         <input type="radio" class="btn-check" id="CurrentOrderRange"
-                           name="selectCurrentLocationOrder" value="1" checked>
+                           name="order_select" value="1" checked>
                         <label class="btn btn-lg btn-outline-primary pull-right" for="CurrentOrderRange">&nbsp&nbsp 距離順 &nbsp&nbsp</label>
                     </div>
                     <div class="order-button col">
                         <!--by recommend-->
                         <input type="radio" class="btn-check" id="CurrentOrderBest"
-                           name="selectCurrentLocationOrder" value="4">
+                           name="order_select" value="4">
                         <label class="btn btn-lg btn-outline-success" for="CurrentOrderBest">オススメ順</label>
                     </div>
                 </div>
@@ -77,8 +77,8 @@
             </div>
             <div id="location_data">
                 <!--current location-->
-                <input type="hidden" id="current_lat" name="CurrentLat" value=""/>
-                <input type="hidden" id="current_lng" name="CurrentLng" value=""/>
+                <input type="hidden" id="current_lat" name="current_lat" value=""/>
+                <input type="hidden" id="current_lng" name="current_lng" value=""/>
             </div>
         </form>
     <!--current location form end-->
@@ -94,7 +94,7 @@
                     <div id="map"></div>
                 </div>
                 <div class="container select-range-box">
-                        <select name="selectSelectedLocationRange" class="form-select">
+                        <select name="range_select" class="form-select">
                             <!-- select location -->
                             <option selected value="1">Searching Range from select location</option>
                             <option value="1">300m以内</option>
@@ -108,12 +108,12 @@
                         <!--select order -->
                         <!--by distance-->
                         <input type="radio" class="btn-check" id="SelectedOrderRange"
-                               name="selectSelectedLocationOrder" value="1" checked>
+                               name="order_select" value="1" checked>
                         <label class="btn btn-outline-primary" for="SelectedOrderRange">距離順</label>
                         <div class="vr"></div>
                         <!--by recommend-->
                         <input type="radio" class="btn-check" id="SelectedOrderBest"
-                               name="selectSelectedLocationOrder" value="4">
+                               name="order_select" value="4">
                         <label class="btn btn-outline-success" for="SelectedOrderBest">オススメ順</label>
                 </div>
 
@@ -127,8 +127,8 @@
             </div>
             <div id="location_data">
                 <!--current location-->
-                <input type="hidden" id="current_lat_s" name="BySelectedCurrentLat"/>
-                <input type="hidden" id="current_lng_s" name="BySelectedCurrentLng"/>
+                <input type="hidden" id="current_lat_s" name="current_lat"/>
+                <input type="hidden" id="current_lng_s" name="current_lng"/>
                 <!--selected location-->
                 <input type="hidden" id="selected_lat" name="selected_lat" value=""/>
                 <input type="hidden" id="selected_lng" name="selected_lng" value=""/>
