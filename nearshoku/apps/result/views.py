@@ -2,11 +2,28 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.core.cache import cache
 from . import models
-from .views_module import model_form_save, combine_dictionary, check_unicode
-from .views_module import constant, parsing_xml_to_json
+from .views_module import model_form_save
 
 
 # settings, tools
+def constant(func):
+    """
+    A decorator function for _Const Class
+    """
+    def func_set(self, value):
+        """
+        you can't edit constant
+        """
+        raise TypeError
+
+    def func_get(self):
+        """
+        you can use constant
+        """
+        return func()
+    return property(func_get, func_set)
+
+
 class _Const(object):
     """
     save constants
@@ -36,6 +53,76 @@ class _Const(object):
         return 'Bad Gateway'
 
 
+def parsing_xml_to_json(xml_data):
+    """
+    Parse the xml data into json format
+
+    Args:
+         xml_data(requests.get():xml format)
+    Returns:
+        json_data(requests.get().txt:json format)
+    """
+    import xmltodict
+    import json
+    xml_pars = xmltodict.parse(xml_data.text)
+    json_dump = json.dumps(xml_pars)
+    json_data = json.loads(json_dump)
+    return json_data
+
+
+def check_u3000(item):
+    """
+    Replace the str has unicode u3000 -> ' ' (space)
+
+    Args:
+        item:str,list,dict,None: the string(s) that has unicode u3000
+    Raises:
+        ValueError: if the item is invalid type
+    Returns:
+        item:str,list,dict,None: the string(s) that changed from u3000 to space
+    """
+    item_type = type(item).__name__
+
+    if item_type == 'str':
+        return item.replace('\u3000', ' ')
+
+    elif item_type == 'list':
+        temp_list = []
+        for text in item:
+            temp_list.append(text.replace('\u3000', ' '))
+        return templist
+
+    elif item is None:
+        return None
+
+    elif item_type == dict:
+        temp_keys = []
+        temp_vals = []
+        for key, val in item.items():
+            tenp_keys.append(key.replace('\u3000', ' '))
+            temp_vals.append(val.replace('\u3000', ' '))
+        return dict(zip(temp_keys, temp_vals))
+
+    else:
+        raise ValueError(f'invalid type{type(item).__name__}')
+
+
+def combine_dictionary(dict1, dict2):
+    """
+    Combine two dictionaries. but they should have different keys
+    * if dicts have same keys, it can update dict1's value without combining
+
+    Args:
+        dict1: dict:
+        dict2: dict:
+    Returns:
+         dict: dict1+dict2
+    """
+    dict1.update(dict2)
+    return dict1
+
+
+# init
 CONST = _Const()
 SHOP_INFO_MODEL_FORM = models.ShopInfoModel
 USER_INFO_MODEL_FORM = models.UserInfoModel
@@ -48,6 +135,8 @@ def get_key(api_type):
     Get protected key with from .env file use python-dotenv
     Args:
         api_type: str: a dotenv(.env) key
+    Raises:
+        ValueError: if api_type is not defined in .env file
     Returns:
         key: str: a dotenv(.env) value
     """
@@ -55,6 +144,8 @@ def get_key(api_type):
     import os
     load_dotenv()
     key = os.environ.get(api_type)
+    if key is None:
+        raise ValueError("invalid api_type")
     return key
 
 
@@ -84,7 +175,7 @@ def hot_pepper_api(**kwargs):
 
     try:
         hot_pepper_response = requests.get(url, headers=headers)
-    except Exception:
+    except:
         # API Error
         return {}, 502
 
@@ -346,15 +437,15 @@ def info_pack(info_json, model_form, lat=None, lng=None):
             model_template = {
                 # 필수요구
                 'detail_shop_id': shop['id'],
-                'detail_name': check_unicode(shop['name']),
-                'detail_address': check_unicode(shop['address']),
+                'detail_name': check_u3000(shop['name']),
+                'detail_address': check_u3000(shop['address']),
                 'detail_image': shop['photo']['pc']['l'],
                 'detail_time': shop['open'],
                 # + info
-                'detail_kana': check_unicode(shop['name_kana']),
+                'detail_kana': check_u3000(shop['name_kana']),
                 'detail_access': shop['access'],
-                'detail_shop_memo': check_unicode(shop['shop_detail_memo']),
-                'detail_budget_memo': check_unicode(shop['budget_memo']),
+                'detail_shop_memo': check_u3000(shop['shop_detail_memo']),
+                'detail_budget_memo': check_u3000(shop['budget_memo']),
                 'detail_lat': shop['lat'],
                 'detail_lng': shop['lng'],
                 'detail_url': shop['urls']['pc'],
@@ -369,8 +460,8 @@ def info_pack(info_json, model_form, lat=None, lng=None):
         for shop in info_json:
             model_template = {
                 'shop_id': shop['id'],
-                'shop_name': check_unicode(shop['name']),
-                'shop_kana': check_unicode(shop['name_kana']),
+                'shop_name': check_u3000(shop['name']),
+                'shop_kana': check_u3000(shop['name_kana']),
                 'shop_access': shop['access'],
                 'shop_thumbnail': shop['logo_image'],
                 'searched_lat': lat,
@@ -391,39 +482,130 @@ def detail_processing(info_json):
     return [shop]
 
 
-def info_processing(info_json):
+def detail_processing_(info_json):
     temp_shops = []
     for shop in info_json:
         temp_shop = shop
-        temp_shop['access'] = info_processing_key(shop=shop,
-                                                  key='access',
-                                                  to_value='分',
-                                                  from_list=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
-                                                  exceptions={'分!!': '分!'})
+        info_open_processor = InfoProcessor(dictionary=shop,
+                                            key='open',
+                                            to_value='）',
+                                            from_value='）',
+                                            mode='replace')
+        temp_shop['open'] = info_open_processor.result
+
+
+def info_processing(info_json):
+    '''
+
+    '''
+    temp_shops = []
+    for shop in info_json:
+        temp_shop = shop
+        info_access_processor = InfoProcessor(dictionary=shop,
+                                              key='access',
+                                              to_value='分',
+                                              from_value=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
+                                              exceptions={'分!!': '分!'},
+                                              mode="all")
+        temp_shop['access'] = info_access_processor.result
         temp_shops.append(temp_shop)
+        del info_access_processor
     return temp_shops
 
 
-def info_processing_key(shop,key,to_value,from_list,exceptions,unicode_check=True):
+class InfoProcessor:
+    '''
+    motived by views_module.info_processor
+    '''
+    def __init__(self, dictionary, key, to_value, from_value,
+                 exceptions=None,
+                 unicode_check=True,
+                 mode=None):
+        if unicode_check:
+            self.info = check_u3000(dictionary[key])
+        else:
+            self.info = dictionary[key]
+        self.to_value = to_value
+        self.from_value = from_value
+        self.from_value_type = type(from_value).__name__
+        self.mode = mode
+
+        self.exceptions = exceptions
+        if type(exceptions).__name__ != 'dict':
+            raise ValueError("exceptions must be a dict")
+
+        if mode == 'all':
+            self.info = self.replace_split()
+        elif mode == 'split':
+            self.info = self.split()
+        elif mode == 'replace':
+            self.info = self.replace()
+        elif mode is None:
+            raise ValueError('Require mode')
+        else:
+            raise ValueError('Allow only "split" or "replace" or "all"')
+
+    # funcs
+    def replace_split(self):
+        self.info = self.replace()
+        self.info = self.split()
+        return self.info
+
+    def replace(self):
+        info = self.info
+        from_value = self.from_value
+        exceptions = self.exceptions
+        if self.mode != 'replace' :
+            to_value = self.to_value+';'
+        else :
+            to_value = self.to_value
+
+        if self.from_value_type == 'list':
+            info = self.replace_info(info, from_value, to_value)
+        elif self.from_value_type == 'str':
+            info = self.replace_info(info, [from_value], to_value)
+
+        if exceptions is not None:
+            for first_check, second_check in exceptions.items():
+                info = self.replace_info_exceptions(info, first_check, second_check, to_value)
+        return info
+
+    def split(self):
+        info = self.info
+        info = self.text_split(info, ';')
+        return info
+
+    # static methods
+    @staticmethod
     def replace_info(info, from_list, to_value):
+        '''
+
+        '''
         for from_value in from_list:
-            info = info.replace(from_value, to_value + ';')
+            info = info.replace(from_value, to_value)
         return info
 
+    @staticmethod
     def replace_info_exceptions(info, first_check, second_check, to_value):
-        info = info.replace(first_check, to_value + ';')
-        info = info.replace(second_check, to_value + ';')
+        '''
+
+        '''
+        info = info.replace(first_check, to_value)
+        info = info.replace(second_check, to_value)
         return info
 
+    @staticmethod
     def text_split(text, symbol):
+        '''
+
+        '''
         temp_list = text.split(symbol)
         return temp_list
 
-    if unicode_check:
-        shop[key] = check_unicode(shop[key])
+    @property
+    def result(self):
+        return self.info
 
-    shop[key] = replace_info(shop[key],from_list,to_value)
-    for first_check, second_check in exceptions.items():
-        shop[key] = replace_info_exceptions(shop[key], first_check, second_check, to_value)
-    shop[key] = text_split(shop[key], ';')
-    return shop[key]
+
+
+### tests
