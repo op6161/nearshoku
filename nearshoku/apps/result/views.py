@@ -5,7 +5,7 @@ from . import models
 from .views_module import model_form_save
 
 
-# settings, tools
+# settings, modules
 def constant(func):
     """
     A decorator function for _Const Class
@@ -59,6 +59,7 @@ def parsing_xml_to_json(xml_data):
 
     Args:
          xml_data(requests.get():xml format)
+
     Returns:
         json_data(requests.get().txt:json format)
     """
@@ -76,8 +77,10 @@ def check_u3000(item):
 
     Args:
         item:str,list,dict,None: the string(s) that has unicode u3000
+
     Raises:
         ValueError: if the item is invalid type
+
     Returns:
         item:str,list,dict,None: the string(s) that changed from u3000 to space
     """
@@ -115,11 +118,144 @@ def combine_dictionary(dict1, dict2):
     Args:
         dict1: dict:
         dict2: dict:
+
     Returns:
-         dict: dict1+dict2
+         dict: dict:
     """
     dict1.update(dict2)
     return dict1
+
+
+class InfoProcessor:
+    """A class to split and replace string
+
+        Args:
+            string :str : The string to be processed
+            mode :str: The processing mode. Possible values are "split", "replace", "all"
+            to_value :str: The value to replace or the symbol to split on
+            from_value :str,list (optional): The target to replace or the symbols to split on
+            replace_ex :dict (optional): A dictionary for exception handling
+            unicode_check :bool (optional): Whether to check for Unicode
+
+        Raises:
+            ValueError: If the input parameters are invalid or if required parameters are missing
+
+        Attributes:
+            info: A property to store the processed result
+
+        Methods:
+            _replace_split():
+                Performs replace mode followed by split mode
+            _replace():
+                Replaces specific values in a given string
+            _split():
+                Splits a given string based on a specified symbol
+            result:
+                A property to retrieve the processed result
+
+        StaticMethods:
+            _replace_info(info, from_list, to_value):
+                Replaces specific values in a string with another value
+            _replace_info_exceptions(info, first_check, second_check, to_value):
+                Replaces specific values in a string with another value for exception handling
+            _text_split(text, symbol):
+                Splits a string into a list based on a specified symbol
+        """
+    def __init__(self, string, mode, from_value, to_value=None,
+                 replace_ex=None, unicode_check=True):
+        """Initialize InfoProcessor and process"""
+        if not isinstance(string, str):
+            raise ValueError('string must be a str')
+
+        if unicode_check:
+            self.info = check_u3000(string)
+        else:
+            self.info = list_
+
+        if not isinstance(to_value, str):
+            raise ValueError('to_value must be "str"')
+        if from_value is not None and not isinstance(from_value, (str, list)):
+            raise ValueError('from_value must be "str" or "list"')
+        if mode != 'split' and to_value is None:
+            raise ValueError('split require "to_value" parameter')
+        if not isinstance(replace_ex, (dict, type(None))):
+            raise ValueError('"replace_ex" must be a dict')
+
+        self.mode = mode
+        self.to_value = to_value
+        self.from_value = from_value
+        self.replace_ex = replace_ex
+
+        if mode == 'all':
+            self.info = self._replace_split()
+        elif mode == 'split':
+            self.info = self._split()
+        elif mode == 'replace':
+            self.info = self._replace()
+        elif mode is None:
+            raise ValueError('InfoProcessor requires "mode" parameter')
+        else:
+            raise ValueError('Mode must be one of "split","replace","all"')
+
+    def __str__(self):
+        return f"InfoProcessor(mode='{self.mode}', to_value='{self.to_value}', from_value='{self.from_value}', replace_ex='{self.replace_ex}', info='{self.info}')"
+
+    # funcs
+    def _replace_split(self):
+        """Perform replace mode followed by split mode"""
+        self.info = self._replace()
+        self.info = self._split()
+        return self.info
+
+    def _replace(self):
+        """Replace specific values in a given string"""
+        info = self.info
+        from_value = self.from_value
+        replace_ex = self.replace_ex
+        to_value = self.to_value + ';' if self.mode in ['all', 'split'] else self.to_value
+
+        if isinstance(from_value, list):
+            info = self._replace_info(info, from_value, to_value)
+        elif isinstance(from_value, str):
+            info = self._replace_info(info, [from_value], to_value)
+
+        if replace_ex:
+            for first_check, second_check in replace_ex.items():
+                info = self._replace_info_exceptions(info, first_check, second_check, to_value)
+        return info
+
+    def _split(self):
+        """Split a given string based on a specified symbol"""
+        info = self.info
+        info = self._text_split(info, ';')
+        return info
+
+    # static methods
+    @staticmethod
+    def _replace_info(info, from_list, to_value):
+        """Replace specific values in a string with another value"""
+        for from_value in from_list:
+            info = info.replace(from_value, to_value)
+        return info
+
+    @staticmethod
+    def _replace_info_exceptions(info, first_check, second_check, to_value):
+        """Replace specific values in a string with another value for exception handling"""
+        for first, second in zip(first_check, second_check):
+            info = info.replace(first, to_value)
+            info = info.replace(second, to_value)
+        return info
+
+    @staticmethod
+    def _text_split(text, symbol):
+        """Split a string into a list based on a specified symbol"""
+        temp_list = text.split(symbol)
+        return temp_list
+
+    @property
+    def result(self):
+        """Retrieve the processed result"""
+        return self.info
 
 
 # init
@@ -130,30 +266,34 @@ SHOP_DETAIL_MODEL_FORM = models.ShopDetailModel
 
 
 # use API function
-def get_key(api_type):
-    """
-    Get protected key with from .env file use python-dotenv
+def get_key(api_key_type):
+    """Get protected key with from .env file use python-dotenv
+
     Args:
-        api_type: str: a dotenv(.env) key
+        api_key_type: str: A dotenv(.env) key
+
     Raises:
-        ValueError: if api_type is not defined in .env file
+        ValueError: If api_type is not defined in .env file
+
     Returns:
-        key: str: a dotenv(.env) value
+        key: str: A dotenv(.env) value
     """
     from dotenv import load_dotenv
     import os
     load_dotenv()
-    key = os.environ.get(api_type)
+    key = os.environ.get(api_key_type)
     if key is None:
-        raise ValueError("invalid api_type")
+        raise ValueError("Invalid api_key_type")
     return key
 
 
 def hot_pepper_api(**kwargs):
     '''
     Get shops data from using recruit-hot-pepper API
+
     Args:
         :**kwargs:hot-pepper api params key=value
+
     Returns:
         shop_data:list[dicts{}],dict{}: hot pepper api response parsed to json format
         error_state: int: 200, 404, 500, 502
@@ -199,6 +339,7 @@ def hot_pepper_api(**kwargs):
 def update_database(request):
     '''
     Save to DB form models
+
     Returns:
         searched_location: dict: search arguments dictionary
         error_state: int: 200, 400, 404
@@ -303,6 +444,7 @@ def result(request):
     Raise:
         400 Bad Request: Get invalid request method
         404 Not Found: No search result
+
     Return:
         request to result_show()
     '''
@@ -334,10 +476,12 @@ def result(request):
 def result_show(request, searched_location, **kwargs):  ########################################!!
     '''
     Show shop search result
+
     Args:
         request
         searched_location: dict: dict of search arguments
         **kwargs: page number
+
     Returns:
         render
     '''
@@ -385,32 +529,22 @@ def detail(request):
 
     Raises:
         400 Bad Request: Get invalid request method
+
     Returns:
         render
     '''
     if request.method == 'GET':
         shop_id = request.GET.get('shop_id')
         detail_info_json, state = hot_pepper_api(id=shop_id)
+
         if state != 200:
             error_message = err_check(state)
             return err_direct(request, error_message, state)
+
         else:
             detail_info = info_pack([detail_info_json], SHOP_DETAIL_MODEL_FORM)
-        contexts = detail_info[0]
-        #
-        # # 사실상 필요없는 작업이 되어버림
-        # print("db 넣기 전")
-        # print(detail_info)
-        # # avoid duplication of data
-        # if not SHOP_DETAIL_MODEL_FORM.objects.filter(detail_shop_id=shop_id).exists():
-        #     model_form_save(detail_info, SHOP_DETAIL_MODEL_FORM)
-        # detail_info = SHOP_DETAIL_MODEL_FORM.objects.get(detail_shop_id=shop_id)
-        # print("db 넣은 후")
-        # print(detail_info)
-        # contexts = detail_info.__dict__
-        # # 사실상 필요없음
-
-        return render(request, 'result_detail.html', contexts)
+            contexts = detail_info[0]
+            return render(request, 'result_detail.html', contexts)
 
     else:
         # Bad Request
@@ -419,20 +553,61 @@ def detail(request):
 
 def info_pack(info_json, model_form, lat=None, lng=None):
     '''
-    pack information to djagno-modelform-template
+    Pack information to show page
     Args:
         info_json: list[dict]: hotpepper_response['results']['shop'] format dicts list
         model_form: django.models.ModelForm object
-        (lat): float: searched latitude
-        (lng): float: searched longitude
+        lat(optional): float: searched latitude
+        lng(optional): float: searched longitude
+
     Returns:
         list[dict{}]
     '''
+
+    # ----------------------------------------------------------------
+    def use_info_processor(info_json, key, mode, to_value=None, from_value=None,
+                           replace_ex=None, unicode_check=True, ):
+        """Use InfoProcessor class for processing information in this project
+
+        Args:
+            info_json (list): A list of dictionaries containing information
+            key (str): The key in each dictionary to be processed
+            mode (str): The processing mode for InfoProcessor
+            to_value (str, optional): The value to replace or the symbol to split on
+            from_value (str or list, optional): The target to replace or the symbols to split on
+            replace_ex (dict, optional): A dictionary for exception handling
+            unicode_check (bool, optional): Whether to check for Unicode
+
+        Returns:
+            list: A list of dictionaries with processed information
+        """
+        temp_shop_list = []
+        for shop in info_json:
+            temp_shop = shop
+            info_processor = InfoProcessor(string=shop[key],
+                                           mode=mode,
+                                           to_value=to_value,
+                                           from_value=from_value,
+                                           replace_ex=replace_ex,
+                                           unicode_check=unicode_check, )
+            temp_shop[key] = info_processor.result
+            temp_shop_list.append(temp_shop)
+            del info_processor
+        return temp_shop_list
+    # ----------------------------------------------------------------
+
     info_package = []
-    info_json = info_processing(info_json)
+    info_json = use_info_processor(info_json, mode='all',
+                                   key='access', to_value='分',
+                                   from_value=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
+                                   replace_ex={'分!!': '分!'})
 
     if model_form == SHOP_DETAIL_MODEL_FORM:
-        info_json = detail_processing(info_json)
+        # info_json = detail_processing_(info_json)
+        info_json = use_info_processor(info_json,
+                                       key='open',
+                                       mode='split',
+                                       to_value='）')
         for shop in info_json:
             model_template = {
                 # 필수요구
@@ -471,141 +646,4 @@ def info_pack(info_json, model_form, lat=None, lng=None):
 
     return info_package
 
-
-def detail_processing(info_json):
-    shop = info_json[0]
-    temp_text = shop['open'].replace('）','）;')
-    temp_list = temp_text.split(';')
-    shop['open'] = temp_list
-    print(shop['open'])
-    print(shop)
-    return [shop]
-
-
-def detail_processing_(info_json):
-    temp_shops = []
-    for shop in info_json:
-        temp_shop = shop
-        info_open_processor = InfoProcessor(dictionary=shop,
-                                            key='open',
-                                            to_value='）',
-                                            from_value='）',
-                                            mode='replace')
-        temp_shop['open'] = info_open_processor.result
-
-
-def info_processing(info_json):
-    '''
-
-    '''
-    temp_shops = []
-    for shop in info_json:
-        temp_shop = shop
-        info_access_processor = InfoProcessor(dictionary=shop,
-                                              key='access',
-                                              to_value='分',
-                                              from_value=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
-                                              exceptions={'分!!': '分!'},
-                                              mode="all")
-        temp_shop['access'] = info_access_processor.result
-        temp_shops.append(temp_shop)
-        del info_access_processor
-    return temp_shops
-
-
-class InfoProcessor:
-    '''
-    motived by views_module.info_processor
-    '''
-    def __init__(self, dictionary, key, to_value, from_value,
-                 exceptions=None,
-                 unicode_check=True,
-                 mode=None):
-        if unicode_check:
-            self.info = check_u3000(dictionary[key])
-        else:
-            self.info = dictionary[key]
-        self.to_value = to_value
-        self.from_value = from_value
-        self.from_value_type = type(from_value).__name__
-        self.mode = mode
-
-        self.exceptions = exceptions
-        if type(exceptions).__name__ != 'dict':
-            raise ValueError("exceptions must be a dict")
-
-        if mode == 'all':
-            self.info = self.replace_split()
-        elif mode == 'split':
-            self.info = self.split()
-        elif mode == 'replace':
-            self.info = self.replace()
-        elif mode is None:
-            raise ValueError('Require mode')
-        else:
-            raise ValueError('Allow only "split" or "replace" or "all"')
-
-    # funcs
-    def replace_split(self):
-        self.info = self.replace()
-        self.info = self.split()
-        return self.info
-
-    def replace(self):
-        info = self.info
-        from_value = self.from_value
-        exceptions = self.exceptions
-        if self.mode != 'replace' :
-            to_value = self.to_value+';'
-        else :
-            to_value = self.to_value
-
-        if self.from_value_type == 'list':
-            info = self.replace_info(info, from_value, to_value)
-        elif self.from_value_type == 'str':
-            info = self.replace_info(info, [from_value], to_value)
-
-        if exceptions is not None:
-            for first_check, second_check in exceptions.items():
-                info = self.replace_info_exceptions(info, first_check, second_check, to_value)
-        return info
-
-    def split(self):
-        info = self.info
-        info = self.text_split(info, ';')
-        return info
-
-    # static methods
-    @staticmethod
-    def replace_info(info, from_list, to_value):
-        '''
-
-        '''
-        for from_value in from_list:
-            info = info.replace(from_value, to_value)
-        return info
-
-    @staticmethod
-    def replace_info_exceptions(info, first_check, second_check, to_value):
-        '''
-
-        '''
-        info = info.replace(first_check, to_value)
-        info = info.replace(second_check, to_value)
-        return info
-
-    @staticmethod
-    def text_split(text, symbol):
-        '''
-
-        '''
-        temp_list = text.split(symbol)
-        return temp_list
-
-    @property
-    def result(self):
-        return self.info
-
-
-
-### tests
+### test
