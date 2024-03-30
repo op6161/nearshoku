@@ -338,6 +338,8 @@ def info_pack(info_json, model_form, lat=None, lng=None):
         list[dict{}]
     '''
     info_package = []
+    info_json = info_processing(info_json)
+
     if model_form == SHOP_DETAIL_MODEL_FORM:
         info_json = detail_processing(info_json)
         for shop in info_json:
@@ -350,7 +352,7 @@ def info_pack(info_json, model_form, lat=None, lng=None):
                 'detail_time': shop['open'],
                 # + info
                 'detail_kana': check_unicode(shop['name_kana']),
-                'detail_access': check_unicode(shop['access']),
+                'detail_access': shop['access'],
                 'detail_shop_memo': check_unicode(shop['shop_detail_memo']),
                 'detail_budget_memo': check_unicode(shop['budget_memo']),
                 'detail_lat': shop['lat'],
@@ -369,7 +371,7 @@ def info_pack(info_json, model_form, lat=None, lng=None):
                 'shop_id': shop['id'],
                 'shop_name': check_unicode(shop['name']),
                 'shop_kana': check_unicode(shop['name_kana']),
-                'shop_access': check_unicode(shop['access']),
+                'shop_access': shop['access'],
                 'shop_thumbnail': shop['logo_image'],
                 'searched_lat': lat,
                 'searched_lng': lng,
@@ -378,11 +380,50 @@ def info_pack(info_json, model_form, lat=None, lng=None):
 
     return info_package
 
+
 def detail_processing(info_json):
     shop = info_json[0]
-    temp_text = shop['open'].replace('）','）♩')
-    temp_list = temp_text.split('♩')
+    temp_text = shop['open'].replace('）','）;')
+    temp_list = temp_text.split(';')
     shop['open'] = temp_list
     print(shop['open'])
     print(shop)
     return [shop]
+
+
+def info_processing(info_json):
+    temp_shops = []
+    for shop in info_json:
+        temp_shop = shop
+        temp_shop['access'] = info_processing_key(shop=shop,
+                                                  key='access',
+                                                  to_value='分',
+                                                  from_list=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
+                                                  exceptions={'分!!': '分!'})
+        temp_shops.append(temp_shop)
+    return temp_shops
+
+
+def info_processing_key(shop,key,to_value,from_list,exceptions,unicode_check=True):
+    def replace_info(info, from_list, to_value):
+        for from_value in from_list:
+            info = info.replace(from_value, to_value + ';')
+        return info
+
+    def replace_info_exceptions(info, first_check, second_check, to_value):
+        info = info.replace(first_check, to_value + ';')
+        info = info.replace(second_check, to_value + ';')
+        return info
+
+    def text_split(text, symbol):
+        temp_list = text.split(symbol)
+        return temp_list
+
+    if unicode_check:
+        shop[key] = check_unicode(shop[key])
+
+    shop[key] = replace_info(shop[key],from_list,to_value)
+    for first_check, second_check in exceptions.items():
+        shop[key] = replace_info_exceptions(shop[key], first_check, second_check, to_value)
+    shop[key] = text_split(shop[key], ';')
+    return shop[key]
