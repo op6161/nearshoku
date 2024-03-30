@@ -19,7 +19,10 @@ function initMap() {
         var marker = await new google.maps.Marker({position: latlng, map: map,});
 
 
-
+        /**
+        * A function set current location data to send views
+        * @param {dictionary} latlng current latitude dict
+        */
         function get_latlng(latlng) {
             var lat = latlng['lat']
             var lng = latlng['lng']
@@ -73,13 +76,3 @@ function set_select(lat, lng){
     $("#submitSelectedLocation").val("Search By Selected Location");
 }
 
-/**
- * A function set current location data to send views
- * @param {number} lat current latitude
- * @param {number} lng current longitude
- */
-
-function set_current(){
-    window.navigator.geolocation.getCurrentPosition(get_latlng)
-
-}

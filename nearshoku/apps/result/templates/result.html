@@ -27,15 +27,15 @@
                         <!--https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif-->
                             </div>
                             <div class="col-6">
-                                <p class="text-white">{{shop.shop_kana}}</p>
-                                <p class="text-white">{{shop.shop_name}}</p>
+                                <h6 class="text-white">{{shop.shop_kana}}</h6>
+                                <h4 class="text-white">{{shop.shop_name}}</h4>
                             </div>
                             <div class="col-1">
                             </div>
 
                         </div>
                         <div class="container row">
-                            <p class="text-white">{{shop.shop_access}}</p>
+                            <label class="text-white">{{shop.shop_access}}</label>
                         </div>
                         <br>
                         <div class="detail-button-box">
@@ -69,7 +69,7 @@
                         {% else %}
                             <li class="page-item" aria-current="page">
                                 <a class ="page-link" href="?page={{page}}">
-                                    {{page}}]
+                                    {{page}}
                                 </a>
                             </li>
                         {% endif %}
