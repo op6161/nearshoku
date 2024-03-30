@@ -1,3 +1,5 @@
+# gunicorn
+
 FROM python:3.10
 WORKDIR /usr/src/app
 
@@ -13,3 +15,5 @@ EXPOSE 8000
 
 ## gunicorn run server on the port 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "nearshoku.wsgi:application"]
+## django test server
+#CMD ["python", "manage.py", "runsslserver", "--certificate", "django.crt", "--key", "django.key"]

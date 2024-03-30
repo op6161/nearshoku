@@ -11,7 +11,7 @@ SECRET_KEY = djagno_secret_key
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
     SECURE_SSL_REDIRECT = False
@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "apps.result", # project apps
+    'sslserver',#test https
 ]
 
 MIDDLEWARE = [
@@ -89,9 +90,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "KST"
+TIME_ZONE = "Asia/Seoul"
 USE_I18N = True
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
