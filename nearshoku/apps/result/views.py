@@ -401,19 +401,21 @@ def result(request):
 
     # POST method (new search request)
     elif request.method == 'POST':
-        # new search method > db clear
+        # get new search method > db clear
         request.session.flush()
         searched_location, state = update_database(request)
-        page=1
-        return redirect('result')
+
+        if state == 200:
+            # request get page 1
+            return redirect('result')
 
     # bad request
     else:
         searched_location = {}
         state = 400
+
     if state == 200:
         return result_show(request, searched_location, page=page)
-
 
     else:
         error_message = err_check(state)
@@ -437,7 +439,7 @@ def result_show(request, searched_location, **kwargs):  ########################
     searched_lng = searched_location['searched_lng']
     # load shop/user info from database by searchedlatlng and userlatlng
     # 여기 트라이 있었음
-    shop_list = SHOP_INFO_MODEL_FORM.objects.filter(searched_lat=searched_lat, searched_lng=searched_lng)
+    # shop_list = SHOP_INFO_MODEL_FORM.objects.filter(searched_lat=searched_lat, searched_lng=searched_lng)
     shop_list = request.session.get('shop_info')
     # 여기 익셉션 있었음 NoSearchResult하려면 있어야함
     # except Exception: raise Exception('NoSearchResult')
@@ -535,16 +537,17 @@ def update_database(request):
                              'order': order,}
         cache.set('searched_location', searched_location)
 
-        shop_info_json, state = hot_pepper_api(lat=lat, lng=lng, range=range_
-                                        , order=order, count=100,)
-        if not shop_info_json:
+        shop_info_json, state = hot_pepper_api(lat=lat, lng=lng, range=range_, order=order, count=100,)
+
+        if shop_info_json == 0:
+            # got 0 from hot_pepper_api
             return searched_location, 404
 
         shop_info = info_pack(shop_info_json,
                               SHOP_INFO_MODEL_FORM, lat, lng)
         request.session['shop_info'] = shop_info
 
-        model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
+        # model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
         return searched_location, 200
 
     elif request.method == 'GET':
