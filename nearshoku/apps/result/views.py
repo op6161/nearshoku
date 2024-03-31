@@ -130,6 +130,16 @@ def combine_dictionary(dict1, dict2):
 class InfoProcessor:
     """A class to split and replace string
 
+    'string', 'mode' are essential args
+
+
+    mode 'split' require from_value (it can be a list or string)
+        (if 'string' is 'hello world' and from_value is 'o' : result ['hello','wo','rld']
+    mode 'replace' require from_value and to_value
+        (if 'string' is 'hello world' and from_value is 'o' to_value is 'p' : result 'hellp wprld'
+    mode 'all' require from_value and to_value
+        (if 'string' is 'hello world' and f:'o' t:'p' : result ['hellp' 'wp' 'rld']
+
         Args:
             string :str : The string to be processed
             mode :str: The processing mode. Possible values are "split", "replace", "all"
@@ -151,6 +161,8 @@ class InfoProcessor:
                 Replaces specific values in a given string
             _split():
                 Splits a given string based on a specified symbol
+            _split_set():
+                Check split point when mode is 'split'
             result:
                 A property to retrieve the processed result
 
@@ -173,12 +185,12 @@ class InfoProcessor:
         else:
             self.info = list_
 
-        if not isinstance(to_value, str):
+        if not isinstance(to_value, str) and to_value is not None:
             raise ValueError('to_value must be "str"')
         if from_value is not None and not isinstance(from_value, (str, list)):
             raise ValueError('from_value must be "str" or "list"')
-        if mode != 'split' and to_value is None:
-            raise ValueError('split require "to_value" parameter')
+        if mode != 'replace' and from_value is None:
+            raise ValueError('split require "from_value" parameter')
         if not isinstance(replace_ex, (dict, type(None))):
             raise ValueError('"replace_ex" must be a dict')
 
@@ -190,6 +202,7 @@ class InfoProcessor:
         if mode == 'all':
             self.info = self._replace_split()
         elif mode == 'split':
+            self.info = self._split_set()
             self.info = self._split()
         elif mode == 'replace':
             self.info = self._replace()
@@ -213,7 +226,7 @@ class InfoProcessor:
         info = self.info
         from_value = self.from_value
         replace_ex = self.replace_ex
-        to_value = self.to_value + ';' if self.mode in ['all', 'split'] else self.to_value
+        to_value = self.to_value+';'
 
         if isinstance(from_value, list):
             info = self._replace_info(info, from_value, to_value)
@@ -221,7 +234,7 @@ class InfoProcessor:
             info = self._replace_info(info, [from_value], to_value)
 
         if replace_ex:
-            for first_check, second_check in replace_ex.items():
+            for first_check, second_check in zip(replace_ex.keys(), replace_ex.values()):
                 info = self._replace_info_exceptions(info, first_check, second_check, to_value)
         return info
 
@@ -229,6 +242,20 @@ class InfoProcessor:
         """Split a given string based on a specified symbol"""
         info = self.info
         info = self._text_split(info, ';')
+        return info
+
+    def _split_set(self):
+        """Check split point when mode is 'split'"""
+        info = self.info
+        if isinstance(self.from_value, list):
+            from_value_list = self.from_value
+            for from_value in from_value_list:
+                to_value = from_value+';'
+                info = self._replace_info(info, from_value, to_value)
+        else:
+            from_value = self.from_value
+            to_value = from_value+';'
+            info = self._replace_info(info,from_value,to_value)
         return info
 
     # static methods
@@ -242,9 +269,8 @@ class InfoProcessor:
     @staticmethod
     def _replace_info_exceptions(info, first_check, second_check, to_value):
         """Replace specific values in a string with another value for exception handling"""
-        for first, second in zip(first_check, second_check):
-            info = info.replace(first, to_value)
-            info = info.replace(second, to_value)
+        info = info.replace(first_check, to_value)
+        info = info.replace(second_check, to_value)
         return info
 
     @staticmethod
@@ -603,17 +629,17 @@ def info_pack(info_json, model_form, lat=None, lng=None):
     # ----------------------------------------------------------------
 
     info_package = []
+
     info_json = use_info_processor(info_json, mode='all',
-                                   key='access', to_value='分',
+                                   to_value='分',
                                    from_value=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
                                    replace_ex={'分!!': '分!'})
 
     if model_form == SHOP_DETAIL_MODEL_FORM:
         # info_json = detail_processing_(info_json)
         info_json = use_info_processor(info_json,
-                                       key='open',
                                        mode='split',
-                                       to_value='）')
+                                       from_value='）')
         for shop in info_json:
             model_template = {
                 # 필수요구

@@ -31,16 +31,25 @@ INSTALLED_APPS = [
     'sslserver',#test https
 ]
 
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",           #
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",               #
-    "django.contrib.auth.middleware.AuthenticationMiddleware", #
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-]
+if DEBUG:
+    MIDDLEWARE = [
+        "django.middleware.security.SecurityMiddleware",           #
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.middleware.csrf.CsrfViewMiddleware",               #
+        "django.contrib.auth.middleware.AuthenticationMiddleware", #
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ]
+else:
+    MIDDLEWARE = [
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ]
 
 ROOT_URLCONF = "nearshoku.urls"
 
