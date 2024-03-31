@@ -631,6 +631,7 @@ def info_pack(info_json, model_form, lat=None, lng=None):
     info_package = []
 
     info_json = use_info_processor(info_json, mode='all',
+                                   key='access',
                                    to_value='分',
                                    from_value=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
                                    replace_ex={'分!!': '分!'})
@@ -638,6 +639,7 @@ def info_pack(info_json, model_form, lat=None, lng=None):
     if model_form == SHOP_DETAIL_MODEL_FORM:
         # info_json = detail_processing_(info_json)
         info_json = use_info_processor(info_json,
+                                       key='open',
                                        mode='split',
                                        from_value='）')
         for shop in info_json:
