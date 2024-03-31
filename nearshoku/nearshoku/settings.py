@@ -11,7 +11,7 @@ SECRET_KEY = djagno_secret_key
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
     SECURE_SSL_REDIRECT = False
@@ -32,11 +32,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # "django.middleware.security.SecurityMiddleware",           #
+    "django.middleware.security.SecurityMiddleware",           #
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",               #
-    # "django.contrib.auth.middleware.AuthenticationMiddleware", #
+    "django.middleware.csrf.CsrfViewMiddleware",               #
+    "django.contrib.auth.middleware.AuthenticationMiddleware", #
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
