@@ -13,6 +13,7 @@
                 <form method="get" action='detail' name="shop-form-{{forloop.counter}}">
                     <div class="container shop-box"
                          id="shop-div-{{forloop.counter}}" onclick="document.forms['shop-form-{{forloop.counter}}'].submit();">
+                        <br>
                         <div class="container row">
                             <div class="col-4">
                                 {% if shop.shop_thumbnail == 'https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif'%}
@@ -26,8 +27,8 @@
                                 {% endif %}
                             </div>
                             <div class="col-6">
-                                <h6 class="text-dark">{{shop.shop_kana}}</h6>
-                                <h4 class="text-dark">{{shop.shop_name}}</h4>
+                                <h6 class="text-dark noto-sans-jp-900">{{shop.shop_kana}}</h6>
+                                <h4 class="text-dark text-bold noto-serif-font">{{shop.shop_name}}</h4>
                             </div>
                             <div class="col-1">
                             </div>
@@ -35,8 +36,8 @@
                     <br>
                         <div class="container row">
                             {% for shop_access in shop.shop_access_list %}
-                                <label class="">
-                                    {{ shop_access }}
+                                <label class="noto-sans-jp-900">
+                                    - {{ shop_access }}
                                 </label>
                                 <br>
                             {% endfor %}
@@ -47,7 +48,7 @@
                         </div>
                     </div>
                 </form>
-                <hr class="pink-line">
+                <hr class="green-line">
             {% endfor %}
         </div>
 
