@@ -247,7 +247,7 @@ class InfoProcessor:
         if unicode_check:
             self.info = check_u3000(string)
         else:
-            self.info = list_
+            self.info = string
 
         if not isinstance(to_value, str) and to_value is not None:
             raise ValueError('to_value must be "str"')
@@ -288,9 +288,12 @@ class InfoProcessor:
     def _replace(self):
         """Replace specific values in a given string"""
         info = self.info
+        mode = self.mode
         from_value = self.from_value
         replace_ex = self.replace_ex
-        to_value = self.to_value+';'
+        to_value = self.to_value
+        if mode != 'replace':
+            to_value = to_value+';'
 
         if isinstance(from_value, list):
             info = self._replace_info(info, from_value, to_value)
@@ -580,7 +583,7 @@ def result(request):
             f_state = 200
             request_page = request.GET.get('page')
             if not request_page:
-                # PRG pattern
+                # For PRG pattern
                 request_page = 1
         else:
             f_state = 400
@@ -707,6 +710,54 @@ def info_pack(info_json, model_form):
         return temp_shop_list
     # ----------------------------------------------------------------
 
+    def use_replace(info_json, key, from_to_dict):
+        """Replace specified values in the 'info_json' dictionary.
+
+            This function is used to replace specified values in the 'info_json' dictionary
+            with corresponding values provided in 'from_to_dict'.
+
+            Args:
+                info_json: list[dict]: A list of dictionaries containing shop information.
+                key: str: The key in the shop dictionary to be replaced.
+                from_to_dict: dict: A dictionary with values to be replaced as keys and their replacements as values.
+
+            Returns:
+                list[dict]: A list of dictionaries with replaced values.
+            """
+        for from_v, to_v in from_to_dict.items():
+            info_processor = InfoProcessor(info_json[0][key], mode='replace', unicode_check=False,
+                                           from_value=from_v, to_value=to_v)
+            info_json[0][key] = info_processor.result
+            del info_processor
+        return info_json
+    # ----------------------------------------------------------------
+
+    def special_1_processing(info_json):
+        """Process special case of data in 'info_json'
+
+            This function processes a special case of data in 'info_json'. It identifies specific pattern.
+            and manipulates the data accordingly.
+
+            Args:
+                info_json: list[dict]: A list of dictionaries containing shop information.
+
+            Returns:
+                list[dict]: A list of dictionaries with processed special case data.
+            """
+        shop = info_json[0]
+        flag = '§'
+        temp_time = []
+
+        for idx, open_time in enumerate(shop['open']):
+            if open_time[0] in ['月', '火', '水', '木', '金',
+                                '金', '土', '日', '祝'] and idx != 0:
+                temp_time.append(flag)
+            temp_time.append(open_time)
+        shop['open'] = ';'.join(temp_time)
+        return [shop]
+
+    # ----------------------------------------------------------------
+
     info_package = []
 
     info_json = use_info_processor(info_json, mode='all',
@@ -717,10 +768,44 @@ def info_pack(info_json, model_form):
                                    replace_ex={'分!!': '分!'})
 
     if model_form == SHOP_DETAIL_MODEL_FORM:
+
+        # '14:3017:00' → '14:30、17:00' formatting
+        info_json = use_replace(info_json,
+                                key='open',
+                                from_to_dict={':300': ':30、0', ':000': ':00、0',
+                                              ':301': ':30、1', ':001': ':00、1'})
+        info_json = use_replace(info_json,
+                                key='open',
+                                from_to_dict={":30月": ":30;月",
+                                              ":00月": ":00;月",
+                                              ":30火": ":30;火",
+                                              ":00火": ":00;火",
+                                              ":30水": ":30;水",
+                                              ":00水": ":00;水",
+                                              ":30木": ":30;木",
+                                              ":00木": ":00;木",
+                                              ":30金": ":30;金",
+                                              ":00金": ":00;金",
+                                              ":30土": ":30;土",
+                                              ":00土": ":00;土",
+                                              ":30日": ":30;日",
+                                              ":00日": ":00;日"})
+
         info_json = use_info_processor(info_json,
                                        key='open',
                                        mode='split',
                                        from_value='）')
+
+        info_json = special_1_processing(info_json)
+        info_json = use_replace(info_json,
+                                key='open',
+                                from_to_dict={": ": ":;"})
+
+        info_json = use_info_processor(info_json,
+                                       key='open',
+                                       mode='split',
+                                       from_value=';')
+
         for shop in info_json:
             model_template = {
                 # 필수
@@ -759,4 +844,7 @@ def info_pack(info_json, model_form):
     return info_package
 
 
+
+
 #  test codes  #
+
