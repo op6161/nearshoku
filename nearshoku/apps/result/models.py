@@ -2,13 +2,9 @@ from django.db import models
 
 
 class BaseModel(models.Model):
-    """
-    Base abstract model-form class with common methods
-    """
+    """Base abstract model-form class with common methods"""
     def save(self, *args, **kwargs):
-        """
-        A function to save modelform
-        """
+        """A function to save modelform"""
         super().save(*args, **kwargs)
 
     class Meta:
@@ -16,9 +12,7 @@ class BaseModel(models.Model):
 
 
 class ShopInfoModel(BaseModel):
-    """
-    A model-form to save shop info to show on result field
-    """
+    """A model-form to save shop info to show on result field"""
     shop_id = models.CharField(max_length=20)
     shop_name = models.CharField(max_length=100)
     shop_kana = models.CharField(max_length=100)
@@ -29,10 +23,7 @@ class ShopInfoModel(BaseModel):
     searched_lng = models.FloatField() # To verify the shown data
 
 class ShopDetailModel(BaseModel):
-    """
-    A model-form to save shop info to show on detail field
-    """
-    #
+    """A model-form to save shop info to show on detail field"""
     detail_shop_id = models.CharField(max_length=20)
     # 필수
     detail_name = models.CharField(max_length=100)
@@ -57,9 +48,7 @@ class ShopDetailModel(BaseModel):
 
 
 class UserInfoModel(BaseModel):
-    '''
-    A model-form to save user info
-    '''
+    '''A model-form to save user info'''
     #user_model_hash = models.CharField(max_length=20)
     current_lat = models.FloatField() # => searched_lat
     current_lng = models.FloatField() # => searched_lng

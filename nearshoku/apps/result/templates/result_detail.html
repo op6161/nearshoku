@@ -1,45 +1,63 @@
 {% extends 'base.html' %}
     {% load static %}
-        <script type="text/javascript" src="{% static 'js/detail.js' %}"></script>
-{% block header %}
-    {% include 'header.html' %}
+{% block head %}
+    <script type="text/javascript" src="{% static 'js/detail.js' %}"></script>
 {% endblock %}
 
 {% block body %}
 <div class="">
     {% include 'go_back_button.html' %}
     <div class="detail-name-box">
-        <p class="text-subhead text-white d-flex justify-content-center noto-serif-font">
+        <h5 class="text-dark-emphasis d-flex justify-content-center noto-serif-font">
             {{ detail_kana }}
-        </p>
-        <p class="text-head text-white d-flex justify-content-center noto-serif-font">
+        </h5>
+        <h1 class="text-dark text-bold d-flex justify-content-center noto-serif-font">
             {{ detail_name }}
-        </p>
+        </h1>
     </div>
     <br>
     <hr class="pink-line">
     <div class="row">
-        <div class="container detail-image col">
+        <div class="">
+        </div>
+        <div class="container detail-image col-4">
             <img src="{{ detail_image }}">
         </div>
-        <div class="detail-timetable col">
-            <label class="text-white">
-                영업시간
-                <!--여러줄일경우 for문으로 하면 좋을듯-->
-            </label>
-            <label class="text-white">
-                {{ detail_time }}
-            </label>
+        <div class="detail-timetable col-md">
+            <h4 class="text-secondary noto-serif-font">
+                <br>
+                営業時間
+            </h4>
+            <div>
+                {% for time in detail_time %}
+                    <div class="row">
+                        <p class="">
+                            {{ time }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-2">
         </div>
     </div>
     <hr class="pink-line">
-    <div class="detail-address">
-        <label class="text-white">
-            {{ detail_address }}
-            <br>
-            <!--여러줄일경우 for문으로 하면 좋을듯-->
-            {{ detail_access }}
-        </label>
+    <div class="detail-aa">
+        <div class="detail-address">
+            <label class="text-bold">
+                {{ detail_address }}
+            </label>
+        </div>
+    <br>
+        <div class='detail-access'>
+            <ul class="list-access">
+                {% for detail_access in detail_access_list %}
+                    <li class="">
+                        {{ detail_access }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     <hr class="pink-line">
     <div class="container detail-map-buttons">

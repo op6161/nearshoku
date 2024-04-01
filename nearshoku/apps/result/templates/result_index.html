@@ -1,24 +1,47 @@
 {% extends 'base.html' %}
-{% block header %}
-    {% include 'header.html' %}
+{% load static %}
+{% block head %}
+    <!--get location-->
+    <script src="{% static 'js/index.js' %}"></script>
+    <!--google map api-->
+    <script async src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&region=JP&language=ja&callback=initMap&loading=async"></script>
+    <!--google map api init-->
 {% endblock %}
 {% block body %}
-    {% load static %}
-    <script src="{% static 'js/get_geo.js' %}"></script>
-    <script defer src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&region=JP&language=ja"></script>
-    <script defer src="{% static 'js/index.js' %}"></script>
-    <div>
-        <br>
-        <br>
-        <br>
-    </div>
-    <div class="container bg-dark index-content-box">
+    <div class="container bg-base index-content-box">
+    <!--search by current location form-->
         <form id="byCurrent" method="POST" action="result">
             {% csrf_token %}
-            <div class="container current-location-box">
-                <div class="container current-range-box">
-                    <select name="selectCurrentLocationRange"
-                            class="form-select">
+            <div class="container current-location-box row">
+                <div class="checkboxes row p-3">
+                    <div class="col"></div>
+                    <div class="col form-switch ">
+                        <input type="checkbox" id="cardCheck"
+                        class="form-check-input">
+                        <label class="form-check-label text-white" for="check1">
+                            Card
+                        </label>
+                    </div>
+                    <div class="col form-switch">
+                        <input type="checkbox" id="lunchCheck"
+                               class="form-check-input">
+                        <label class="form-check-label text-white" for="check2">
+                            Lunch
+                        </label>
+                    </div>
+                    <div class="col form-switch">
+                        <input type="checkbox" id="Open"
+                               class="form-check-input">
+                        <label class="form-check-label text-white" for="check3">
+                            Open
+                        </label>
+                    </div>
+                    <div class="col"></div>
+                </div>
+                <div class="container current-range-box col-10 w-75">
+                    <select name="range_select"
+                            class="form-select select-picker" data-style="btn-primary">
+                        <!-- select location -->
                         <option selected value="1">Searching Range from your location</option>
                         <option value="1">300m以内</option>
                         <option value="2">500m以内</option>
@@ -27,48 +50,52 @@
                         <option value="5">3km以内</option>
                     </select>
                 </div>
-                <div class="container current-order-box">
-                    <!--order value 4=권장순, others=거리순 -->
-                    <!--거리순-->
-                    <input type="radio" class="btn-check" id="CurrentOrderRange"
-                           name="selectCurrentLocationOrder" value="1" checked>
-                    <label class="btn btn-outline-primary" for="CurrentOrderRange">距離順</label>
-                    <div class="vr"></div>
-                    <!--권장순-->
-                    <input type="radio" class="btn-check" id="CurrentOrderBest"
-                           name="selectCurrentLocationOrder" value="4">
-                    <label class="btn btn-outline-success" for="CurrentOrderBest">オススメ順</label>
+                <div class="container current-order-box row p-1">
+                    <!--select order -->
+                    <div class="order-button col">
+                        <!--by distance-->
+                        <input type="radio" class="btn-check" id="CurrentOrderRange"
+                           name="order_select" value="1" checked>
+                        <label class="btn btn-lg btn-outline-primary pull-right" for="CurrentOrderRange">&nbsp&nbsp 距離順 &nbsp&nbsp</label>
+                    </div>
+                    <div class="order-button col">
+                        <!--by recommend-->
+                        <input type="radio" class="btn-check" id="CurrentOrderBest"
+                           name="order_select" value="4">
+                        <label class="btn btn-lg btn-outline-success" for="CurrentOrderBest">オススメ順</label>
+                    </div>
                 </div>
-                <div class="container current-submit-box">
-                    <input type="submit"
-                           class="btn btn-secondary"
-                           id="submitCurrentLocation"
-                           value="search by current location">
+                <div class="container current-submit-box col-10 p-3">
+                    <div class="d-flex justify-content-center">
+                        <!--submit-->
+                        <input type="submit"
+                               class="btn btn-secondary"
+                               id="submitCurrentLocation"
+                               value="search by current location">
+                    </div>
                 </div>
             </div>
             <div id="location_data">
-                <input type="hidden" id="current_lat" name="CurrentLat" value=""/>
-                <input type="hidden" id="current_lng" name="CurrentLng" value=""/>
+                <!--current location-->
+                <input type="hidden" id="current_lat" name="current_lat" value=""/>
+                <input type="hidden" id="current_lng" name="current_lng" value=""/>
             </div>
         </form>
-
+    <!--current location form end-->
         <br>
         <br>
 
+    <!--search by selected location form-->
         <form id="bySelected" method="POST" action="result">
             {% csrf_token %}
             <div class="container select-location-box">
                 <div class="container index-map-box">
-                <!--구글맵과 연동해서 원하는 좌표를 찍어내는 식으로 하고 싶은데 그거 넣는 영역 -->
+                    <!-- google map -->
                     <div id="map"></div>
                 </div>
-                <div class="data-container">
-                    <input type="hidden" id="selected_lat" name="selected_lat" value=""/>
-                    <input type="hidden" id="selected_lng" name="selected_lng" value=""/>
-                </div>
                 <div class="container select-range-box">
-                        <select name="selectSelectedLocationRange"
-                                class="form-select">
+                        <select name="range_select" class="form-select">
+                            <!-- select location -->
                             <option selected value="1">Searching Range from select location</option>
                             <option value="1">300m以内</option>
                             <option value="2">500m以内</option>
@@ -78,20 +105,20 @@
                         </select>
                 </div>
                 <div class="container select-order-box">
-                        <!--order value 4=권장순, others=거리순 -->
-                        <!--거리순-->
+                        <!--select order -->
+                        <!--by distance-->
                         <input type="radio" class="btn-check" id="SelectedOrderRange"
-                               name="selectSelectedLocationOrder" value="1" checked>
+                               name="order_select" value="1" checked>
                         <label class="btn btn-outline-primary" for="SelectedOrderRange">距離順</label>
                         <div class="vr"></div>
-                        <!--권장순-->
+                        <!--by recommend-->
                         <input type="radio" class="btn-check" id="SelectedOrderBest"
-                               name="selectSelectedLocationOrder" value="4">
+                               name="order_select" value="4">
                         <label class="btn btn-outline-success" for="SelectedOrderBest">オススメ順</label>
                 </div>
 
                 <div class="container current-submit-box">
-                    <!-- selected -->
+                    <!--submit-->
                     <input type="submit"
                            class="btn btn-secondary"
                            id="submitSelectedLocation"
@@ -99,11 +126,16 @@
                 </div>
             </div>
             <div id="location_data">
-                <input type="hidden" id="current_lat_s" name="BySelectedCurrentLat"/>
-                <input type="hidden" id="current_lng_s" name="BySelectedCurrentLng"/>
+                <!--current location-->
+                <input type="hidden" id="current_lat_s" name="current_lat"/>
+                <input type="hidden" id="current_lng_s" name="current_lng"/>
+                <!--selected location-->
+                <input type="hidden" id="selected_lat" name="selected_lat" value=""/>
+                <input type="hidden" id="selected_lng" name="selected_lng" value=""/>
             </div>
         </form>
     </div>
 {% endblock %}
+
 {# 스마트폰 환경에서 사용하려면 하단에 여백이 더 필요해 보임 #}
 {#Search By Selected Location #}

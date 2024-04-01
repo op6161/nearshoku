@@ -1,17 +1,13 @@
 <!-- exception style -->
-<div class="container pt-5 bg-dark text-white"
+{% load static %}
+<div class="container pt-5 bg-sub rounded-pill" id="title-container"
      onclick="location.href='{% url 'index' %}'"
      style="cursor:pointer">
-{#    <button class="btn-lg btn-dark w-100 h-100"#}
-{#    type="button">#}
-{#        Near shoku!#}
-{#    </button>#}
-    <label class="fa-solid fa-pepper-hot justify-content-center"
-       aria-hidden="true"></label>
-    <label class="d-flex justify-content-center text-head rubik-font"
-        style="cursor:pointer"
-        id="main-text">
-        Near shoku!
-    </label>
+    <div class="title-text">
+        <h1 class="display-1 d-flex justify-content-center rubik-font"
+            style="cursor:pointer"
+            id="title-text">
+            Near shoku !
+        </h1>
+    </div>
 </div>
-<hr class="pink-line">
