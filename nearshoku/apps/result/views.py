@@ -59,10 +59,10 @@ def parsing_xml_to_json(xml_data):
     Parse the xml data into json format
 
     Args:
-         xml_data(requests.get():xml format)
+         xml_data:requests.get()(xml-format):
 
     Returns:
-        json_data(requests.get().txt:json format)
+        json_data:requests.get()(json format).text:
     """
     import xmltodict
     import json
@@ -73,55 +73,50 @@ def parsing_xml_to_json(xml_data):
 
 
 def check_u3000(item):
-    """
-    Replace the str has unicode u3000 -> ' ' (space)
+    """Replace all u3000 to ' ' (space) in the string
+
+    it works left-side first
 
     Args:
-        item:str,list,dict,None: the string(s) that has unicode u3000
+        item: str, list, dict, None: the string(s) that has unicode u3000
 
     Raises:
         ValueError: if the item is invalid type
 
     Returns:
-        item:str,list,dict,None: the string(s) that changed from u3000 to space
+        item: str, list, dict, None: the string(s) that changed from u3000 to space
     """
-    item_type = type(item).__name__
-
-    if item_type == 'str':
+    if isinstance(item, str):
         return item.replace('\u3000', ' ')
-
-    elif item_type == 'list':
+    elif isinstance(item, list):
         temp_list = []
         for text in item:
             temp_list.append(text.replace('\u3000', ' '))
         return templist
-
     elif item is None:
         return None
-
-    elif item_type == dict:
+    elif isinstance(item, dict):
         temp_keys = []
         temp_vals = []
         for key, val in item.items():
             tenp_keys.append(key.replace('\u3000', ' '))
             temp_vals.append(val.replace('\u3000', ' '))
         return dict(zip(temp_keys, temp_vals))
-
     else:
         raise ValueError(f'invalid type{type(item).__name__}')
 
 
 def combine_dictionary(dict1, dict2):
-    """
-    Combine two dictionaries. but they should have different keys
+    """Combine two dictionaries. but they should have different keys
+
     * if dicts have same keys, it can update dict1's value without combining
 
     Args:
-        dict1: dict:
-        dict2: dict:
+        dict1: dict
+        dict2: dict
 
     Returns:
-         dict: dict:
+         dict: dict
     """
     dict1.update(dict2)
     return dict1
@@ -130,15 +125,24 @@ def combine_dictionary(dict1, dict2):
 class InfoProcessor:
     """A class to split and replace string
 
-    'string', 'mode' are essential args
+    This class provides methods to split a string based on a specified symbol
+    or to replace specific values in a given string with another value.
 
+        Examples:
+        - To split a string:
+            processor = InfoProcessor('hello world', mode='split', from_value='o')
+            result = processor.result
+            # result will be ['hello', ' wo', 'rld']
 
-    mode 'split' require from_value (it can be a list or string)
-        (if 'string' is 'hello world' and from_value is 'o' : result ['hello','wo','rld']
-    mode 'replace' require from_value and to_value
-        (if 'string' is 'hello world' and from_value is 'o' to_value is 'p' : result 'hellp wprld'
-    mode 'all' require from_value and to_value
-        (if 'string' is 'hello world' and f:'o' t:'p' : result ['hellp' 'wp' 'rld']
+        - To replace specific values in a string:
+            processor = InfoProcessor('hello world', mode='replace', from_value='o', to_value='p')
+            result = processor.result
+            # result will be 'hellp wprld'
+
+        - To perform both split and replace operations:
+            processor = InfoProcessor('hello world', mode='all', from_value='o', to_value='p')
+            result = processor.result
+            # result will be ['hellp', ' wp', 'rld']
 
         Args:
             string :str : The string to be processed
@@ -307,95 +311,104 @@ def get_key(api_key_type):
     """
     from dotenv import load_dotenv
     import os
+
     load_dotenv()
     key = os.environ.get(api_key_type)
+
     if key is None:
         raise ValueError("Invalid api_key_type")
-    return key
+    else:
+        return key
 
 
 def hot_pepper_api(**kwargs):
-    '''
-    Get shops data from using recruit-hot-pepper API
+    """Get shops data from using recruit-hot-pepper API
 
     Args:
-        :**kwargs:hot-pepper api params key=value
+        **kwargs: hot-pepper api params key=value reference https://webservice.recruit.co.jp/doc/hotpepper/reference.html
 
     Returns:
         shop_data:list[dicts{}],dict{}: hot pepper api response parsed to json format
         error_state: int: 200, 404, 500, 502
-    '''
+    """
+    API_HOST = 'http://webservice.recruit.co.jp/hotpepper/gourmet/v1/'
+    headers = {'Content-Type': 'application/json',
+               'charset': 'UTF-8',
+               'Accept': '*/*'}
+
     import requests
     api_key = get_key(CONST.RECRUIT_API)
-    API_HOST = 'http://webservice.recruit.co.jp/hotpepper/gourmet/v1/'
-    headers = {
-        'Content-Type': 'application/json',
-        'charset': 'UTF-8',
-        'Accept': '*/*'}
     kwargs['key'] = api_key
+
     query = '?'
     keys = kwargs.keys()
     vals = kwargs.values()
     for key, val in zip(keys, vals):
         query += f'{key}={val}&'
+
     url = API_HOST + query
 
     try:
         hot_pepper_response = requests.get(url, headers=headers)
     except:
         # API Error
-        return {}, 502
+        return None, 502
 
     data_json = parsing_xml_to_json(hot_pepper_response)
+
     try:
         shop_data = data_json['results']['shop']
+        return shop_data, 200
     except KeyError:
         # 'shop' key not found
-        return 0, 404
+        return None, 404
     except:
         # API Server error
-        return 0, 500
-
-    return shop_data, 200
-
-
-# def info_pack
-
-
-# ORM
-
+        return None, 500
 
 
 # error
-def err_check(state):
-    '''
+def err_direct(request, state=500):
+    """Handle direct error response
 
-    '''
-    if state == 400:
-        return CONST.BAD_REQUEST,
-    elif state == 404:
-        return CONST.NOT_FOUND
-    elif state == 502:
-        return CONST.BAD_GATEWAY
-    else:
-        return CONST.INTERNAL_SERVER_ERROR
+    Args:
+        request: HttpRequest
+        state: int(optional): state code received from logical functions
 
+    Returns:
+        HttpResponse: The rendered error response page
+    """
+    # ----------------------------------------------------------------
+    def err_check(check_state):
+        """Internal function to check error code
 
-def err_direct(request,msg,state=500):
-    '''
+        Args: check_state: int: state code received from logical functions
 
-    '''
+        Returns: str: error message
+        """
+        if check_state == 400:
+            return CONST.BAD_REQUEST,
+        elif check_state == 404:
+            return CONST.NOT_FOUND
+        elif check_state == 502:
+            return CONST.BAD_GATEWAY
+        else:
+            return CONST.INTERNAL_SERVER_ERROR
+    # ----------------------------------------------------------------
+
+    err_msg = err_check(state)
+
     if state == 404:
         contexts = {}
-        searched_location = cache.get('searched_location')
-        if searched_location['selected_lat']:
-            contexts = {'is_selected': True}
+        search_by = request.session['search_by']
+        if search_by == 'selected':
+            contexts = {'is_selected': True,
+                        'state': state}
 
         return render(request, 'result_error.html', contexts)
     else:
-        contexts = {'error_code': state,
-                    'error_message': msg,
-                    }
+        contexts = {'state': state,
+                    'error_message': err_msg}
         return render(request, 'error_base.html', contexts)
 
 
@@ -420,83 +433,79 @@ def result(request):
     Return:
         request to result_show()
     '''
-    # GET method (page move request)
-    if request.method == 'GET':
-        searched_location, state = update_database(request)
-        page = request.GET.get('page')
 
-    # POST method (new search request)
-    elif request.method == 'POST':
-        # get new search method > db clear
-        request.session.flush()
-        searched_location, state = update_database(request)
+    # ----------------------------------------------------------------
+    def post_shop_info(request):
+        """ """
+        if request.method == 'POST':
+            range_ = request.POST['range_select']
+            order = request.POST['order_select']
+            current_lng = request.POST['current_lng']
+            current_lat = request.POST['current_lat']
 
-        if state == 200:
-            # request get page 1
-            return redirect('result')
+            if request.POST.get('selected_lat'):
+                selected_lat = request.POST['selected_lat']
+                selected_lng = request.POST['selected_lng']
+                search_lat = selected_lat
+                search_lng = selected_lng
+            else:
+                selected_lat, selected_lng = None, None
+                search_lat = current_lat
+                search_lng = current_lng
 
-    # bad request
-    else:
-        searched_location = {}
-        state = 400
+            if selected_lat:
+                request.session['search_by'] = 'selected'
+            else:
+                request.session['search_by'] = 'current'
 
-    if state == 200:
-        return result_show(request, searched_location, page=page)
+            shop_info_json, api_state = hot_pepper_api(lat=search_lat, lng=search_lng, range=range_, order=order, count=100)
+            if api_state != 200:
+                return api_state
 
-    else:
+            shop_info = info_pack(shop_info_json, SHOP_INFO_MODEL_FORM, search_lat, search_lng)
+            request.session['shop_info'] = shop_info
+            return 200
+    # ----------------------------------------------------------------
+    def result_method_check(request):
+        """ """
+        if request.method == 'POST':
+            request.session.flush()
+            db_state = post_shop_info(request)
+            db_page = None
+        elif request.method == 'GET':
+            db_state = 200
+            db_page = request.GET.get('page')
+        else:
+            db_state = 400
+            db_page = None
+
+        return db_state, db_page
+    # ----------------------------------------------------------------
+
+    state, page = result_method_check(request)
+
+    if state != 200:
         error_message = err_check(state)
-        return err_direct(request, error_message, state)
-
-
-def result_show(request, searched_location, **kwargs):  ########################################!!
-    '''
-    Show shop search result
-
-    Args:
-        request
-        searched_location: dict: dict of search arguments
-        **kwargs: page number
-
-    Returns:
-        render
-    '''
-
-    searched_lat = searched_location['searched_lat']
-    searched_lng = searched_location['searched_lng']
-    # load shop/user info from database by searchedlatlng and userlatlng
-    # 여기 트라이 있었음
-    # shop_list = SHOP_INFO_MODEL_FORM.objects.filter(searched_lat=searched_lat, searched_lng=searched_lng)
-    shop_list = request.session.get('shop_info')
-    # 여기 익셉션 있었음 NoSearchResult하려면 있어야함
-    # except Exception: raise Exception('NoSearchResult')
-
-    # paging =================================
-    if kwargs.get('page'):
-        # if got page number from request.GET['page']
-        page = kwargs['page']
+        return err_direct(request, state)
+    elif request.method == 'POST':
+        return redirect('result')
     else:
-        # default page number
-        page = 1
+        PAGING_POST_NUMBER = 10
+        shop_list = request.session.get('shop_info')
+        paginator = Paginator(shop_list, PAGING_POST_NUMBER)
 
-    PAGING_POST_NUMBER = 10  # page 마다 출력 상점 수
-    paginator = Paginator(shop_list, PAGING_POST_NUMBER)
-    try:
-        page_object = paginator.page(page)
-    except:
-        # invalid page number
-        # it has url print err
-        page = paginator.num_pages
-        page_object = paginator.page(page)
-    # ========================================
+        try:
+            page_object = paginator.page(page)
+        except:
+            page = paginator.num_pages
+            page_object = paginator.page(page)
 
-    contexts = {
-        'shop_list':shop_list,
-        'page_object': page_object,
-        'paginator': paginator,
-        'len_page_objects': len(page_object) * page_object.number,
-        'len_shop_list': len(shop_list),
-    }
-    return render(request, 'result.html', contexts)
+        contexts = {
+            'page_object': page_object,
+            'paginator': paginator,
+            'len_page_objects': len(page_object) * page_object.number,
+            'len_shop_list': len(shop_list)}
+        return render(request, 'result.html', contexts)
 
 
 def detail(request):
@@ -514,74 +523,15 @@ def detail(request):
         detail_info_json, state = hot_pepper_api(id=shop_id)
 
         if state != 200:
-            error_message = err_check(state)
-            return err_direct(request, error_message, state)
-
+            return err_direct(request, state)
         else:
             detail_info = info_pack([detail_info_json], SHOP_DETAIL_MODEL_FORM)
             contexts = detail_info[0]
             return render(request, 'result_detail.html', contexts)
-
     else:
         # Bad Request
-        return err_direct(request, 'Bad Request', 400)
+        return err_direct(request, 400)
 
-def update_database(request):
-    '''
-    Save to DB form models
-
-    Returns:
-        searched_location: dict: search arguments dictionary
-        error_state: int: 200, 400, 404
-    '''
-
-    if request.method == 'POST':
-        range_ = request.POST['range_select']
-        order = request.POST['order_select']
-        current_lng = request.POST['current_lng']
-        current_lat = request.POST['current_lat']
-
-        if request.POST.get('selected_lat'):
-            selected_lat = request.POST['selected_lat']
-            selected_lng = request.POST['selected_lng']
-            lat = selected_lat
-            lng = selected_lng
-
-        else:
-            selected_lat = None
-            selected_lng = None
-            lat = current_lat
-            lng = current_lng
-
-        searched_location = {'searched_lat': lat,
-                             'searched_lng': lng,
-                             'current_lat': current_lat,
-                             'current_lng': current_lng,
-                             'selected_lat': selected_lat,
-                             'selected_lng': selected_lng,
-                             'range': range_,
-                             'order': order,}
-        cache.set('searched_location', searched_location)
-
-        shop_info_json, state = hot_pepper_api(lat=lat, lng=lng, range=range_, order=order, count=100,)
-
-        if shop_info_json == 0:
-            # got 0 from hot_pepper_api
-            return searched_location, 404
-
-        shop_info = info_pack(shop_info_json,
-                              SHOP_INFO_MODEL_FORM, lat, lng)
-        request.session['shop_info'] = shop_info
-
-        # model_form_save(shop_info, SHOP_INFO_MODEL_FORM)
-        return searched_location, 200
-
-    elif request.method == 'GET':
-        searched_location = cache.get('searched_location')
-        return searched_location, 200
-
-    else:
-        return {}, 400
 
 def info_pack(info_json, model_form, lat=None, lng=None):
     '''
@@ -599,20 +549,7 @@ def info_pack(info_json, model_form, lat=None, lng=None):
     # ----------------------------------------------------------------
     def use_info_processor(info_json, key, mode, to_value=None, from_value=None,
                            replace_ex=None, unicode_check=True, ):
-        """Use InfoProcessor class for processing information in this project
-
-        Args:
-            info_json (list): A list of dictionaries containing information
-            key (str): The key in each dictionary to be processed
-            mode (str): The processing mode for InfoProcessor
-            to_value (str, optional): The value to replace or the symbol to split on
-            from_value (str or list, optional): The target to replace or the symbols to split on
-            replace_ex (dict, optional): A dictionary for exception handling
-            unicode_check (bool, optional): Whether to check for Unicode
-
-        Returns:
-            list: A list of dictionaries with processed information
-        """
+        """Use InfoProcessor class for processing information in this project"""
         temp_shop_list = []
         for shop in info_json:
             temp_shop = shop
@@ -633,11 +570,11 @@ def info_pack(info_json, model_form, lat=None, lng=None):
     info_json = use_info_processor(info_json, mode='all',
                                    key='access',
                                    to_value='分',
-                                   from_value=['分。', '分／', '分/', '分，', '分、', '分』', '分！'],
+                                   from_value=['分。', '分／', '分/', '分，',
+                                               '分、', '分』', '分！', '分♪'],
                                    replace_ex={'分!!': '分!'})
 
     if model_form == SHOP_DETAIL_MODEL_FORM:
-        # info_json = detail_processing_(info_json)
         info_json = use_info_processor(info_json,
                                        key='open',
                                        mode='split',
@@ -652,7 +589,7 @@ def info_pack(info_json, model_form, lat=None, lng=None):
                 'detail_time': shop['open'],
                 # + info
                 'detail_kana': check_u3000(shop['name_kana']),
-                'detail_access': shop['access'],
+                'detail_access_list': shop['access'],
                 'detail_shop_memo': check_u3000(shop['shop_detail_memo']),
                 'detail_budget_memo': check_u3000(shop['budget_memo']),
                 'detail_lat': shop['lat'],
@@ -665,13 +602,14 @@ def info_pack(info_json, model_form, lat=None, lng=None):
                 'detail_station': shop['station_name'],
             }
             info_package.append(model_template)
+
     elif model_form == SHOP_INFO_MODEL_FORM:
         for shop in info_json:
             model_template = {
                 'shop_id': shop['id'],
                 'shop_name': check_u3000(shop['name']),
                 'shop_kana': check_u3000(shop['name_kana']),
-                'shop_access': shop['access'],
+                'shop_access_list': shop['access'],
                 'shop_thumbnail': shop['logo_image'],
                 'searched_lat': lat,
                 'searched_lng': lng,
