@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.cache import cache
 from . import models
 from .views_module import model_form_save
@@ -579,6 +579,9 @@ def result(request):
         elif request.method == 'GET':
             f_state = 200
             request_page = request.GET.get('page')
+            if not request_page:
+                # PRG pattern
+                request_page = 1
         else:
             f_state = 400
             request_page = None
@@ -599,7 +602,10 @@ def result(request):
 
         try:
             page_object = paginator.page(page)
-        except:
+        except PageNotAnInteger:
+            page = 1
+            page_object = paginator.page(page)
+        except EmptyPage:
             page = paginator.num_pages
             page_object = paginator.page(page)
 
