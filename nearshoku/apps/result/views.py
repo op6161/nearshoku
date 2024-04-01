@@ -553,6 +553,13 @@ def result(request):
                 request.session['search_by'] = 'current'
 
             shop_info_json, api_state = hot_pepper_api(lat=search_lat, lng=search_lng, range=range_, order=order, count=100)
+
+            if isinstance(shop_info_json, dict):
+                # If hot_pepper_api result is only 1 shop
+                # shop_info_json would be dictionary not dictionaries list
+                # So I need to convert it
+                shop_info_json = [shop_info_json]
+
             if api_state != 200:
                 return api_state
 
@@ -615,8 +622,12 @@ def result(request):
         contexts = {
             'page_object': page_object,
             'paginator': paginator,
-            'len_page_objects': len(page_object) * page_object.number,
-            'len_shop_list': len(shop_list)}
+            'cur_page_min_number': len(page_object) * page_object.number - len(page_object) + 1,
+            'cur_page_max_number': len(page_object) * page_object.number,
+            'cur_page_shop_number': len(page_object),
+            'len_shop_list': len(shop_list),
+            'cur_page': page,
+            'max_page': paginator.num_pages}
         return render(request, 'result.html', contexts)
 
 
@@ -693,18 +704,27 @@ def info_pack(info_json, model_form):
 
         """
 
-
         temp_shop_list = []
         for shop in info_json:
             temp_shop = shop
-            info_processor = InfoProcessor(string=shop[key],
+            if isinstance(key, list):
+                string = shop[key[0]][key[1]]
+            else:
+                string = shop[key]
+
+            if isinstance(string, list):
+                string = ';'.join(string)
+
+            info_processor = InfoProcessor(string=string,
                                            mode=mode,
                                            to_value=to_value,
                                            from_value=from_value,
                                            replace_ex=replace_ex,
                                            unicode_check=unicode_check, )
-            # temp_shop[key] = info_processor.result
-            temp_shop[key] = check_list_has_blank(info_processor.result)
+            if isinstance(key, list):
+                temp_shop[key[0]][key[1]] = check_list_has_blank(info_processor.result)
+            else:
+                temp_shop[key] = check_list_has_blank(info_processor.result)
             temp_shop_list.append(temp_shop)
             del info_processor
         return temp_shop_list
@@ -760,6 +780,7 @@ def info_pack(info_json, model_form):
 
     info_package = []
 
+    # detail/shop both preprocessing ---------------------------------
     info_json = use_info_processor(info_json, mode='all',
                                    key='access',
                                    to_value='分',
@@ -767,6 +788,20 @@ def info_pack(info_json, model_form):
                                                '分、', '分』', '分！', '分♪'],
                                    replace_ex={'分!!': '分!'})
 
+    # case: shop_id=J000638173
+    info_json = use_info_processor(info_json,
+                                   key='access',
+                                   from_value='◇',
+                                   to_value=';',
+                                   mode='all')
+
+    info_json = use_info_processor(info_json,
+                                   key=['genre', 'name'],
+                                   mode='all',
+                                   from_value='・',
+                                   to_value=';')
+
+    # detail info preprocessing ---------------------------------
     if model_form == SHOP_DETAIL_MODEL_FORM:
 
         # '14:3017:00' → '14:30、17:00' formatting
@@ -774,6 +809,8 @@ def info_pack(info_json, model_form):
                                 key='open',
                                 from_to_dict={':300': ':30、0', ':000': ':00、0',
                                               ':301': ':30、1', ':001': ':00、1'})
+
+        # case shop_id=J003433085
         info_json = use_replace(info_json,
                                 key='open',
                                 from_to_dict={":30月": ":30;月",
@@ -827,9 +864,10 @@ def info_pack(info_json, model_form):
                 'detail_genre_catch': shop['genre']['catch'],
                 'detail_price_average': shop['budget']['average'],
                 'detail_station': shop['station_name'],
+                'api_key':get_key(CONST.GOOGLE_API),
             }
-            info_package.append(model_template)
 
+    # shop info preprocessing ---------------------------------
     elif model_form == SHOP_INFO_MODEL_FORM:
         for shop in info_json:
             model_template = {
@@ -838,8 +876,10 @@ def info_pack(info_json, model_form):
                 'shop_kana': check_u3000(shop['name_kana']),
                 'shop_access_list': shop['access'],
                 'shop_thumbnail': shop['logo_image'],
+                'shop_genre': shop['genre']['name'],
             }
-            info_package.append(model_template)
+
+    info_package.append(model_template)
 
     return info_package
 
@@ -847,4 +887,3 @@ def info_pack(info_json, model_form):
 
 
 #  test codes  #
-
