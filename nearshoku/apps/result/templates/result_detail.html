@@ -8,10 +8,10 @@
 <div class="">
     {% include 'go_back_button.html' %}
     <div class="detail-name-box">
-        <h3 class="text-white d-flex justify-content-center noto-serif-font">
+        <h5 class="text-dark-emphasis d-flex justify-content-center noto-serif-font">
             {{ detail_kana }}
-        </h3>
-        <h1 class="text-white d-flex justify-content-center noto-serif-font">
+        </h5>
+        <h1 class="text-dark text-bold d-flex justify-content-center noto-serif-font">
             {{ detail_name }}
         </h1>
     </div>
@@ -20,34 +20,44 @@
     <div class="row">
         <div class="">
         </div>
-        <div class="container detail-image col-md">
+        <div class="container detail-image col-4">
             <img src="{{ detail_image }}">
         </div>
         <div class="detail-timetable col-md">
-            <h4 class="text-white noto-serif-font">
+            <h4 class="text-secondary noto-serif-font">
+                <br>
                 営業時間
             </h4>
-            <label class="text-white">
+            <div>
                 {% for time in detail_time %}
                     <div class="row">
-                        <p class="text-white">
+                        <p class="">
                             {{ time }}
                         </p>
                     </div>
                 {% endfor %}
-            </label>
+            </div>
         </div>
         <div class="col-2">
         </div>
     </div>
     <hr class="pink-line">
-    <div class="detail-address">
-        <label class="text-white">
-            {{ detail_address }}
-            <br>
-            <!--여러줄일경우 for문으로 하면 좋을듯-->
-            {{ detail_access }}
-        </label>
+    <div class="detail-aa">
+        <div class="detail-address">
+            <label class="text-bold">
+                {{ detail_address }}
+            </label>
+        </div>
+    <br>
+        <div class='detail-access'>
+            <ul class="list-access">
+                {% for detail_access in detail_access_list %}
+                    <li class="">
+                        {{ detail_access }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
     <hr class="pink-line">
     <div class="container detail-map-buttons">
