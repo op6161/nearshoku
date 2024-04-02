@@ -138,3 +138,9 @@
 .shop-thumbnail{
     width:69px;
 }
+
+/* dev set */
+.development-in-progress {
+    display: none; /* Hide the content */
+    pointer-events: none; /* Disable pointer events to make the content non-interactive */
+}
