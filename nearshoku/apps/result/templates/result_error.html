@@ -1,34 +1,57 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    <title>Search Error!</title>
+    <title>{{ title }}</title>
 {% endblock %}
 
 {% block body %}
-{% include 'go_back_button.html' %}
     <div class="container text-center">
-{#        <div class="mx-auto error" data-text="404">404</div>#}
-        <h1 class="display-6 lead text-bold text-dark mb-5">
-            No Search Result
-        </h1>
-        {% if is_selected %}
-            <label class="text-white-50">
-                From You Selected!
-            </label>
-        {% else %}
-            <label class="text-white-50">
-                From Around You!
-            </label>
-        {% endif %}
-    <p>
-        select other location
-    </p>
-    </div>
-     <div class="min-vh-100 justify-content-center">
-            <div class="empty-form">
-            </div>
+        <div class="err-msg">
+            <h1 class="display-6 lead text-bold text-dark mb-5">
+                {{err_msg}}
+            </h1>
+            {% if state == 404 %}
+                {% if is_selected %}
+                    <label class="text-dark">
+                        選択した場所で検索結果がありません
+                    </label>
+                {% elif is_current %}
+                    <label class="text-dark">
+                        周辺からの検索結果がありません
+                    </label>
+                {% endif %}
+                <p>
+                    検索条件の変更をお願いします
+                </p>
+            {% elif state == 400 %}
+                <label class="text-dark">
+                    間違った要請です
+                </label>
+            {% elif state == 500 %}
+                <label class="text-dark">
+                    サーバーエラーが発生しました
+                </label>
+                <P>
+                    後でもう一度要請お願いします
+                </P>
+            {% endif %}
         </div>
+        <div class="d-flex justify-content-center">
+            {% include 'go_back_button.html' %}
+        </div>
+    </div>
+
+    <!-- margin -->
+     <div>
+         {% load for_loop_templates %}
+         {% for n in 2|times  %}
+             <div class="container empty-shop-height" ></div>
+         {% endfor %}
+     </div>
+    <br>
+    <br>
     <div class="data">
         <input type="hidden" value="{{is_selected}}">
+        <input type="hidden" value="{{ is_current }}">
     </div>
 {% endblock %}

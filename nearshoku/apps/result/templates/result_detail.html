@@ -1,80 +1,108 @@
 {% extends 'base.html' %}
-    {% load static %}
-{% block head %}
-    <script type="text/javascript" src="{% static 'js/detail.js' %}"></script>
-{% endblock %}
 
 {% block body %}
-<div class="">
     {% include 'go_back_button.html' %}
-    <div class="detail-name-box">
-        <h5 class="text-dark-emphasis d-flex justify-content-center noto-sans-jp-900">
-            {{ detail_kana }}
-        </h5>
-        <h1 class="text-dark text-bold noto-serif-font d-flex justify-content-center">
-            {{ detail_name }}
-        </h1>
-    </div>
-    <br>
-    <hr class="green-line">
-    <div class="row">
-        <div class="">
+    <div class="">
+    <!--detail contents-->
+        <div class="detail-name-box">
+        <!--detail top(shop info)-->
+            <!--detail shop name-->
+            <h5 class="text-dark-emphasis d-flex justify-content-center noto-sans-jp-900">
+                {{ detail_kana }}
+            </h5>
+            <h1 class="text-dark text-bold noto-serif-font d-flex justify-content-center">
+                {{ detail_name }}
+            </h1>
         </div>
-        <div class="container detail-image col-4">
-            <img src="{{ detail_image }}">
-        </div>
-        <div class="col-1"></div>
-        <div class="detail-timetable col-md">
-            <h4 class="text-secondary noto-sans-jp-900">
+        <br>
+        <div>
+            <!--detail shop genre-->
+            {% for genre in detail_genre %}
+                <label class="text-end text-bold text-location ">
+                    {% if genre != 'その他グルメ' %}
+                        {{ genre }}
+                    {% endif %}
+                </label>
                 <br>
-                営業時間
-            </h4>
-            <div>
-                {% for time in detail_time %}
-                    <div class="row">
-                        {% if time == '§' %}
-                            <hr class="green-line">
-                        {% else %}
-                            <p class="noto-sans-jp-900">
-                                {{ time }}
-                            </p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <hr class="green-line">
+        <div class="row">
+        <!--detail middle-->
+            <div class="">
+            </div>
+            <!--detail image-->
+            <div class="container detail-image col-4">
+                <img src="{{ detail_image }}">
+            </div>
+
+            <div class="col-1"></div><!--margin-->
+
+            <!--detail open time-->
+            <div class="detail-timetable col-md">
+                <h4 class="text-secondary noto-sans-jp-900">
+                    <br>
+                    営業時間
+                </h4>
+                <div>
+                    {% for time in detail_time %}
+                        <div class="row">
+                            {% if time == '§' %}
+                                <hr class="green-line">
+                            {% else %}
+                                <p class="noto-sans-jp-900">
+                                    {{ time }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-2"></div><!--margin-->
+
+        <!--end detail middle-->
+        </div>
+        <hr class="green-line">
+        <div class="detail-bottom">
+        <!--detail bottom(access)-->
+            <div class='detail-access'>
+                <ul class="list-access">
+                    {% for detail_access in detail_access_list %}
+                        <li class="noto-sans-jp-900">
+                            {{ detail_access }}
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-        <div class="col-2">
-        </div>
-    </div>
-    <hr class="green-line">
-    <div class="detail-aa">
-        <div class="detail-address">
-            <label class="text-bold">
-                {{ detail_address }}
-            </label>
-        </div>
-    <hr class="green-line-50">
-        <div class='detail-access'>
-            <ul class="list-access">
-                {% for detail_access in detail_access_list %}
-                    <li class="noto-sans-jp-900">
-                        {{ detail_access }}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    <hr class="green-line">
-    <div class="container detail-map-buttons">
 
-    </div>
-    <div class="container detail-map-modal">
+        <hr class="green-line">
+        <br>
 
+        <div class="">
+        <!--detail map-->
+            <picture class="detail-map-img">
+            <!--(Reactive) Image sizing-->
+                <!--img small-->
+                <source media="(max-width: 400px)"
+                        srcset="https://maps.googleapis.com/maps/api/staticmap?center={{detail_lat}},{{detail_lng}}&zoom=16&size=300x200&key={{api_key}}&markers=color:red%7C{{detail_lat}},{{detail_lng}}&language=ja">
+                <!--img middle-->
+                <source media="(max-width: 576px)"
+                        srcset="https://maps.googleapis.com/maps/api/staticmap?center={{detail_lat}},{{detail_lng}}&zoom=16&size=400x266&key={{api_key}}&markers=color:red%7C{{detail_lat}},{{detail_lng}}&language=ja">
+                <!--img large-->
+                <img src="https://maps.googleapis.com/maps/api/staticmap?center={{detail_lat}},{{detail_lng}}&zoom=16&size=550x366&key={{api_key}}&markers=color:red%7C{{detail_lat}},{{detail_lng}}&language=ja" alt="map">
+            </picture>
+
+            <div class="detail-address">
+                <label class="text-bold">
+                    {{ detail_address }}
+                </label>
+            </div>
+
+        </div>
     </div>
-    <br>
-</div>
-    <br>
-    <br>
     <br>
     <br>
 {% endblock %}

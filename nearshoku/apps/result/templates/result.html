@@ -3,19 +3,19 @@
 
 {% block body %}
     <div class="container">
-        <div class="menu">
-
-        </div>
-
+    <!-- search result contents -->
         <div class="container shops-box">
-    <!--div 사이즈를 고정하고 이미지 크기를 맞추면 좋을 듯 함-->
+        <!--result top shop list-->
             {% for shop in page_object %}
                 <form method="get" action='detail' name="shop-form-{{forloop.counter}}">
-                    <div class="container shop-box"
-                         id="shop-div-{{forloop.counter}}" onclick="document.forms['shop-form-{{forloop.counter}}'].submit();">
+                <!-- form to send data to detail -->
+                    <div class="container shop-box" id="shop-div-{{forloop.counter}}" onclick="document.forms['shop-form-{{forloop.counter}}'].submit();">
+                    <!--shop box-->
                         <br>
                         <div class="container row">
+                        <!--shop box top-->
                             <div class="col-4">
+                            <!--shop thumbnail-->
                                 {% if shop.shop_thumbnail == 'https://imgfp.hotp.jp/SYS/cmn/images/common/diary/custom/m30_img_noimage.gif'%}
                                     <img class="shop-thumbnail"
                                          src="{% static 'others/no_thumbnail.png' %}"
@@ -25,53 +25,92 @@
                                          src="{{shop.shop_thumbnail}}"
                                          alt="thumbnail">
                                 {% endif %}
+                                <div>
+                                <!--shop genre(type)-->
+                                    {% for genre in shop.shop_genre %}
+                                        <label class="text-bold text-location">
+                                            {% if genre != 'その他グルメ' %}
+                                                {{ genre }}
+                                            {% endif %}
+                                        </label>
+                                        <br>
+                                    {% endfor %}
+                                </div>
                             </div>
+
                             <div class="col-6">
+                                <!--shop name-->
                                 <h6 class="text-dark noto-sans-jp-900">{{shop.shop_kana}}</h6>
                                 <h4 class="text-dark text-bold noto-serif-font">{{shop.shop_name}}</h4>
                             </div>
-                            <div class="col-1">
-                            </div>
+
+                            <div class="col-1"><!--margin--></div>
+                        <!--end shop box top-->
                         </div>
-                    <br>
+                        <br>
                         <div class="container row">
+                        <!--shop box bottom-->
                             {% for shop_access in shop.shop_access_list %}
+                                <!--shop access-->
                                 <label class="noto-sans-jp-900">
                                     - {{ shop_access }}
                                 </label>
                                 <br>
                             {% endfor %}
+
+                            <!--shop list number-->
+                            <p class="text-end text-footer">
+                                {{ cur_page_min_number|add:forloop.counter|add:-1 }}/{{ len_shop_list }}
+                            </p>
+                        <!--shop box bottom end-->
                         </div>
                         <br>
-                        <div class="detail-button-box">
+                        <div class="data-container">
+                        <!--form data-->
                             <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
                         </div>
+                    <!--end shop box-->
                     </div>
+                <!--end form-->
                 </form>
                 <hr class="green-line">
             {% endfor %}
-        </div>
-
-        <div class="result-nav row">
-        <!--nav bar-->
-            <div class="result-nav-up">
-                <!-- page/all number -->
-                <div class="how-many-shops align-content-center">
-                    <label class="text-dark d-flex justify-content-center">
-                        {{ len_page_objects }} / {{ len_shop_list }}
-                    </label>
-                </div>
+            <div>
+            <!-- fill space -->
+                {% if cur_page_shop_number < 3 %}
+                    {% load for_loop_templates %}
+                    {% for n in cur_page_shop_number_sub|add:3|times  %}
+                        <div class="container empty-shop-height" ></div>
+                    {% endfor %}
+                {% endif %}
             </div>
+            <!--fill end-->
+
+        <!-- shop list end -->
+        </div>
+<!--shops-->
+<!--------------- -=-=-=-=-=- ----------------->
+<!--page -->
+        <div class="result-paging">
+        <!--result bottom pagaination-->
+            <div class="">
+                 <!-- page/max_page -->
+            </div>
+
             <div class="result-nav-down">
+            <!--pagination-->
                 <ul class="pagination justify-content-center">
+                <!--page list-->
                     {% for page in paginator.page_range %}
                         {% if page == page_object.number %}
+                        <!--page list - current page-->
                             <li class="page-item active" aria-current="page">
                                <a class ="page-link">
                                    {{page}}
                                </a>
                             </li>
                         {% else %}
+                        <!--page list - other pages-->
                             <li class="page-item" aria-current="page">
                                 <a class ="page-link text-bold text-black-50" href="?page={{page}}">
                                     {{page}}
@@ -80,7 +119,17 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
+
+                <!--show page/max_page count-->
+                <div class="how-many-shops align-content-center">
+                    <label class="text-dark d-flex justify-content-center">
+                        {{ cur_page }} / {{ max_page }} ページ
+                    </label>
+                </div>
+            <!--end pagination-->
             </div>
+        <!--end result bottom-->
         </div>
+    <!--end search result contents-->
     </div>
 {% endblock %}
