@@ -19,6 +19,7 @@ def constant(func):
     Returns:
         property: A property object that acts as a constant property.
     """
+
     def func_set(self, value):
         """Raises TypeError when attempting to set the constant property."""
         raise TypeError
@@ -26,6 +27,7 @@ def constant(func):
     def func_get(self):
         """Returns the constant value."""
         return func()
+
     return property(func_get, func_set)
 
 
@@ -49,22 +51,6 @@ class _Const(object):
     def RECRUIT_API():
         return 'HOTPEPPER_API_KEY'
 
-    @constant
-    def BAD_REQUEST():
-        return 'Bad Request'
-
-    @constant
-    def NOT_FOUND():
-        return 'Not Found'
-
-    @constant
-    def INTERNAL_SERVER_ERROR():
-        return 'Internal Server Error'
-
-    @constant
-    def BAD_GATEWAY():
-        return 'Bad Gateway'
-
 
 def parsing_xml_to_json(xml_data):
     """
@@ -85,7 +71,7 @@ def parsing_xml_to_json(xml_data):
     return json_data
 
 
-def check_u3000(item, exception = False):
+def check_u3000(item, exception=False):
     """Replace all '\u3000' to ' ' (space) in the input string(and list, dict).
 
     it works left-side first
@@ -238,6 +224,7 @@ class InfoProcessor:
             _text_split(text, symbol):
                 Splits a string into a list based on a specified symbol
         """
+
     def __init__(self, string, mode, from_value, to_value=None,
                  replace_ex=None, unicode_check=True):
         """Initialize InfoProcessor and process"""
@@ -293,7 +280,7 @@ class InfoProcessor:
         replace_ex = self.replace_ex
         to_value = self.to_value
         if mode != 'replace':
-            to_value = to_value+';'
+            to_value = to_value + ';'
 
         if isinstance(from_value, list):
             info = self._replace_info(info, from_value, to_value)
@@ -317,12 +304,12 @@ class InfoProcessor:
         if isinstance(self.from_value, list):
             from_value_list = self.from_value
             for from_value in from_value_list:
-                to_value = from_value+';'
+                to_value = from_value + ';'
                 info = self._replace_info(info, from_value, to_value)
         else:
             from_value = self.from_value
-            to_value = from_value+';'
-            info = self._replace_info(info,from_value,to_value)
+            to_value = from_value + ';'
+            info = self._replace_info(info, from_value, to_value)
         return info
 
     # static methods
@@ -392,7 +379,7 @@ def hot_pepper_api(**kwargs):
 
     Returns:
         shop_data:list[dicts{}],dict{}: hot pepper api response parsed to json format
-        error_state: int: 200, 404, 500, 502
+        error_state: int: 200, 404, 500
     """
     API_HOST = 'http://webservice.recruit.co.jp/hotpepper/gourmet/v1/'
     headers = {'Content-Type': 'application/json',
@@ -415,7 +402,7 @@ def hot_pepper_api(**kwargs):
         hot_pepper_response = requests.get(url, headers=headers)
     except:
         # API Error
-        return None, 502
+        return None, 500
 
     data_json = parsing_xml_to_json(hot_pepper_response)
 
@@ -452,29 +439,30 @@ def err_direct(request, state=500):
             str: error message
         """
         if check_state == 400:
-            return CONST.BAD_REQUEST,
+            return 'Bad Request', 'Request Error!'
+
         elif check_state == 404:
-            return CONST.NOT_FOUND
-        elif check_state == 502:
-            return CONST.BAD_GATEWAY
+            return 'No Search Result', 'Search Error!'
+
         else:
-            return CONST.INTERNAL_SERVER_ERROR
+            return 'Server Error!', 'Server Error!'
+
     # ----------------------------------------------------------------
 
-    err_msg = err_check(state)
+    err_msg, err_title = err_check(state)
+    contexts = {'state': state,
+                'err_msg': err_msg,
+                'title': err_title}
 
     if state == 404:
-        contexts = {}
         search_by = request.session['search_by']
-        if search_by == 'selected':
-            contexts = {'is_selected': True,
-                        'state': state}
 
-        return render(request, 'result_error.html', contexts)
-    else:
-        contexts = {'state': state,
-                    'error_message': err_msg}
-        return render(request, 'error_base.html', contexts)
+        if search_by == 'selected':
+            contexts['is_selected'] = True
+        else:
+            contexts['is_current'] = True
+
+    return render(request, 'result_error.html', contexts)
 
 
 # views
@@ -537,7 +525,7 @@ def result(request):
             current_lng = request.POST['current_lng']
             current_lat = request.POST['current_lat']
 
-            if request.POST.get('selected_lat'):
+            if request.POST.get('submitSelectedLocation') == 'True':
                 selected_lat = request.POST['selected_lat']
                 selected_lng = request.POST['selected_lng']
                 search_lat = selected_lat
@@ -552,7 +540,8 @@ def result(request):
             else:
                 request.session['search_by'] = 'current'
 
-            shop_info_json, api_state = hot_pepper_api(lat=search_lat, lng=search_lng, range=range_, order=order, count=100)
+            shop_info_json, api_state = hot_pepper_api(lat=search_lat, lng=search_lng, range=range_, order=order,
+                                                       count=100)
 
             if isinstance(shop_info_json, dict):
                 # If hot_pepper_api result is only 1 shop
@@ -568,6 +557,7 @@ def result(request):
             return api_state
         else:
             raise ValueError('post_shop_info() requires request.method POST')
+
     # ----------------------------------------------------------------
 
     def result_method_check(request):
@@ -597,15 +587,18 @@ def result(request):
             request_page = None
 
         return f_state, request_page
+
     # ----------------------------------------------------------------
 
     state, page = result_method_check(request)
 
     if state != 200:
         return err_direct(request, state)
+
     elif request.method == 'POST':
         return redirect('result')
-    else:
+
+    else:  # request.method == 'GET'
         PAGING_POST_NUMBER = 10
         shop_list = request.session.get('shop_info')
         paginator = Paginator(shop_list, PAGING_POST_NUMBER)
@@ -618,12 +611,15 @@ def result(request):
         except EmptyPage:
             page = paginator.num_pages
             page_object = paginator.page(page)
+        except:
+            return err_direct(request, 400)
 
         contexts = {
             'page_object': page_object,
             'paginator': paginator,
             'cur_page_min_number': len(page_object) * page_object.number - len(page_object) + 1,
             'cur_page_max_number': len(page_object) * page_object.number,
+            'cur_page_shop_number_sub': 0 - int(len(page_object)),
             'cur_page_shop_number': len(page_object),
             'len_shop_list': len(shop_list),
             'cur_page': page,
@@ -646,6 +642,10 @@ def detail(request):
     """
     if request.method == 'GET':
         shop_id = request.GET.get('shop_id')
+
+        if shop_id is None:
+            return err_direct(request, 400)
+
         detail_info_json, state = hot_pepper_api(id=shop_id)
 
         if state != 200:
@@ -728,6 +728,7 @@ def info_pack(info_json, model_form):
             temp_shop_list.append(temp_shop)
             del info_processor
         return temp_shop_list
+
     # ----------------------------------------------------------------
 
     def use_replace(info_json, key, from_to_dict):
@@ -750,6 +751,7 @@ def info_pack(info_json, model_form):
             info_json[0][key] = info_processor.result
             del info_processor
         return info_json
+
     # ----------------------------------------------------------------
 
     def special_1_processing(info_json):
@@ -864,8 +866,9 @@ def info_pack(info_json, model_form):
                 'detail_genre_catch': shop['genre']['catch'],
                 'detail_price_average': shop['budget']['average'],
                 'detail_station': shop['station_name'],
-                'api_key':get_key(CONST.GOOGLE_API),
+                'api_key': get_key(CONST.GOOGLE_API),
             }
+            info_package.append(model_template)
 
     # shop info preprocessing ---------------------------------
     elif model_form == SHOP_INFO_MODEL_FORM:
@@ -877,13 +880,11 @@ def info_pack(info_json, model_form):
                 'shop_access_list': shop['access'],
                 'shop_thumbnail': shop['logo_image'],
                 'shop_genre': shop['genre']['name'],
+                'shop_card': shop['card'],
+                'shop_open': shop['open'],
             }
-
-    info_package.append(model_template)
+            info_package.append(model_template)
 
     return info_package
-
-
-
 
 #  test codes  #
