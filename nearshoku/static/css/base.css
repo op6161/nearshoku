@@ -1,46 +1,46 @@
-/* fonts */
+/*===== index google map ======*/
+#map{
+    height:300px;
+}
+
+/* ====== fonts ====== */
 .rubik-font {
+  /* title font */
   font-family: "Rubik Scribble", system-ui;
   font-weight: 400;
   font-style: normal;
 }
 .noto-serif-font {
+    /* thin japanese font */
   font-family: "Noto Serif JP", serif;
   font-weight: 500;
   font-style: normal;
 }
 .noto-sans-jp-900 {
+    /* thick japanese font */
   font-family: "Noto Sans JP", sans-serif;
   font-optical-sizing: auto;
   font-weight: 900;
   font-style: normal;
 }
 
-/*====== style ======*/
-/*script*/
-.detail-info{
-    height:0px;
-    overflow:hidden;
-    transition:height ease-out 1s 0s;
-}
-.detail-map{
-    height:0px;
-    overflow:hidden;
-    transition:height ease-out 1s 0s;
-}
+/* ====== style ====== */
 .detail-access{
+    /* detail access list style */
     list-style-image: url("../others/direction.svg")
 }
 .clickable{
+    /* object hover pointer change */
     cursor:pointer;
 }
+
 /*line-style*/
 .pink-line{
     background:pink;
     height:1px;
     border:0;
 }
-.white-line{
+.white-line-50{
     background:pink;
     height:1px;
     border:0;
@@ -57,21 +57,14 @@
     border:0;
     width:55%;
 }
-/*box-style*/
-.location-box{
 
-}
-.current-submit-box{
-
-}
-
-
-/*text-style*/
+/*====== text-style =====*/
+/* static text size */
 .text-head{
     font-size:40px;
 }
-
 .text-subhead{
+
     font-size:20px;
 }
 
@@ -85,11 +78,49 @@
 .text-bold{
     font-weight:bold;
 }
-/* google */
-#map{
-    height:300px;
+
+/* margin */
+.no-content{
+    flex: 1 0 auto;
+    width:100%;
+    height:100%;
 }
-/* img */
+.empty-shop-height{
+  height:200px;
+}
+.shop-thumbnail{
+    vertical-align: middle;
+}
+
+/*=====  colors =====*/
+.bg-base{
+    /*background color gradation base*/
+    background: linear-gradient(#FDE8A9, #FEAE50);
+}
+.bg-base-content{
+    /*background color gradation synchronize result_index content*/
+    background: linear-gradient(#fedd97, #feb358);
+}
+.bg-footer-index{
+    /*background color gradation synchronize footer.html*/
+    background: linear-gradient(#feb256, #FEAE50);
+}
+.bg-sub{
+    /* title bg */
+    background-color: #B4ED69
+}
+.bg-detail-main{
+    /* result_detail bg */
+    background: linear-gradient(60deg, #FEAE50, #F9D0CD, #E1FADC, #FDE8A9);
+}
+.shop-box:hover{
+    /* result shop-box hover */
+    background-color: #F0DDB2;
+    box-shadow: 5px 5px 10px #F96200;
+    border-radius:8px;
+}
+
+/*===== contents ======*/
 .title-img-container{
     position:relative;
 }
@@ -100,36 +131,4 @@
 }
 .shop-thumbnail{
     width:69px;
-}
-
-.no-content{
-    flex: 1 0 auto;
-    width:100%;
-    height:100%;
-}
-
-/* bg colors */
-.bg-base{
-    background: linear-gradient(#FDE8A9, #FEAE50);
-}
-.bg-base-content{
-    background: linear-gradient(#fedd97, #feb358);
-}
-.bg-footer-index{
-    background: linear-gradient(#feb256, #FEAE50);
-}
-.bg-sub{
-    background-color: #B4ED69
-}
-.bg-detail-main{
-    background: linear-gradient(60deg, #FEAE50, #F9D0CD, #E1FADC, #FDE8A9);
-}
-.shop-box:hover{
-    background-color: #F0DDB2;
-    box-shadow: 5px 5px 10px #F96200;
-    border-radius:8px;
-}
-
-.shop-thumbnail{
-    vertical-align: middle;
 }

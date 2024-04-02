@@ -4,6 +4,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# load django secret key
 from dotenv import load_dotenv
 load_dotenv()
 djagno_secret_key = os.environ.get('SECRET_KEY')
@@ -27,11 +28,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "apps.result", # project apps
-    'sslserver',#test https
+    "apps.result",  # project apps
+    'sslserver',  # test https
 ]
 
 if DEBUG:
+    # for python manage.py runserver
     MIDDLEWARE = [
         "django.middleware.security.SecurityMiddleware",           #
         "django.contrib.sessions.middleware.SessionMiddleware",
@@ -43,6 +45,7 @@ if DEBUG:
         "whitenoise.middleware.WhiteNoiseMiddleware",
     ]
 else:
+    # for gunicorn / it doesn't work django runserver
     MIDDLEWARE = [
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",

@@ -1,28 +1,38 @@
 <head>
     {% load static %}
-    <link rel="shortcut icon" href="{% static 'others/favicon/favicon.ico' %}">
-    <link rel="manifest" href="{% static 'others/favicon/site.webmanifest' %}">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- favicon -->
+        <link rel="shortcut icon" href="{% static 'others/favicon/favicon.ico' %}">
+
+    <!-- web app manifest -->
+        <link rel="manifest" href="{% static 'others/favicon/site.webmanifest' %}">
+
+    <!-- set viewport -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <!-- jqeury.min.js -->
-    <script src="{% static 'js/jquery.min.js' %}"></script>
+        <script src="{% static 'js/jquery.min.js' %}"></script>
 
     <!--bootstrap5.min.css-->
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <!--load bootstrap5 package-->
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    <!--font-awesome.css-->
-    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %} ">
-    <script src="https://kit.fontawesome.com/42895cfdd9.js" crossorigin="anonymous"></script>
+        <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+        <!--load bootstrap5 package script-->
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+    <!--font-awesome icon font-->
+        <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %} ">
+        <script src="https://kit.fontawesome.com/42895cfdd9.js" crossorigin="anonymous"></script>
 
     <!--google-fonts-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik+Scribble&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
-
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <!--Rubik Scribble-->
+            <link href="https://fonts.googleapis.com/css2?family=Rubik+Scribble&display=swap" rel="stylesheet">
+            <!--Noto Serif JP-->
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+            <!--Noto Sans JP-->
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 
     <!--base.css-->
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+
 </head>
