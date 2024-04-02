@@ -60,7 +60,7 @@ Through NearShoku, users can conveniently decide on dining locations and explore
 ### ※ It works only in Japan
 
 
-![index-contents](README_contents/index contents.png)
+![index-contents](README_contents/index_contents.png)
 ① Select search Range : [ 300m ~ 3KM ] (Default is 300m)
 <br/>
 ② Select Order :

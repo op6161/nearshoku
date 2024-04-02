@@ -65,7 +65,7 @@ Through NearShoku, users can conveniently decide on dining locations and explore
 ### ※ It works only in Japan
 
 
-![index-contents](README_contents/index contents.png)
+![index-contents](README_contents/index_contents.png)
 ① Select search Range : [ 300m ~ 3KM ] (Default is 300m)
 <br/>
 ② Select Order :
@@ -78,6 +78,7 @@ Through NearShoku, users can conveniently decide on dining locations and explore
 <br/>
 
 <span style="color:yellow">ⓐ When you select a location, the button is activated
+<br/>
 ![index-button-be](README_contents/btn-before.png) 
 ![arrred](README_contents/arrred-40px.png)
 ![index-button-af](README_contents/btn-after.png)
@@ -224,7 +225,7 @@ NearShokuを通じて、ユーザーは便利に食事の場所を決め、さ�
 ### ※日本国内のみ機能します
 
 
-![index-contents](README_contents/index contents.png)
+![index-contents](README_contents/index_contents.png)
 ① 検索範囲を選択 : [ 300m ~ 3KM ]（デフォルトは300m）
 <br/>
 ② 順番を選択 :
@@ -237,6 +238,7 @@ NearShokuを通じて、ユーザーは便利に食事の場所を決め、さ�
 <br/>
 
 <span style="color:yellow">ⓐ 位置を選択すると、ボタンがアクティブになります
+<br/>
 ![index-button-be](README_contents/btn-before.png) 
 ![arrred](README_contents/arrred-40px.png)
 ![index-button-af](README_contents/btn-after.png)

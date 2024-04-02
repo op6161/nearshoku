@@ -59,7 +59,7 @@ NearShokuを通じて、ユーザーは便利に食事の場所を決め、さ�
 ### ※日本国内のみ機能します
 
 
-![index-contents](README_contents/index contents.png)
+![index-contents](README_contents/index_contents.png)
 ① 検索範囲を選択 : [ 300m ~ 3KM ]（デフォルトは300m）
 <br/>
 ② 順番を選択 :
