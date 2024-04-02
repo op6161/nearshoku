@@ -11,8 +11,13 @@
   <a href="https://op6160.xyz">
     <img src="README_contents/apple-touch-icon.png" alt="Logo" width="80" height="80">
   </a>
+<br>
+   <a href="https://op6160.xyz">https://op6160.xyz</a>
+<br>
 
-<h3 align="center">NearShoku - ニア食</h3>
+<h3 align="center">
+   NearShoku - ニア食
+</h3>
 
   <p align="center">
     <!--project description-->
@@ -172,7 +177,9 @@ Project Link: [https://github.com/op6161/nearshoku-project](https://github.com/o
   <a href="https://op6160.xyz">
     <img src="README_contents/apple-touch-icon.png" alt="Logo" width="80" height="80">
   </a>
-
+<br>
+   <a href="https://op6160.xyz">https://op6160.xyz</a>
+<br>
 <h3 align="center">NearShoku - ニア食</h3>
 
   <p align="center">
