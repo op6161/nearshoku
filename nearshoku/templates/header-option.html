@@ -1,23 +1,68 @@
+<!--
+This HTML module is used for development purposes to check post data and location information.
+
+The JavaScript section initializes the geolocation functionality when the window is loaded.
+It defines the 'init' function to retrieve the current position using the geolocation API.
+The obtained latitude and longitude coordinates are then logged to the console.
+
+The HTML section displays the current location information inside a container box.
+If selected latitude and longitude are available, another container box displays the selected location information.
+
+Note: This module is intended for development and debugging purposes.
+-->
+
 {% load static %}
-<script src="{% static 'js/get_geo.js' %}"></script>
+<script>
+    /**
+     * Initialize the geolocation functionality.
+     */
+    function init() {
+        window.navigator.geolocation.getCurrentPosition(get_latlng);
+        console.log("init_get_geo");
+    }
+
+    /**
+     * Get the latitude and longitude coordinates from the geolocation position.
+     *
+     * @param {Position} position - The geolocation position object containing coordinates.
+     */
+    function get_latlng(position) {
+        console.log("get_latlng");
+        let lat = position.coords.latitude;
+        let lng = position.coords.longitude;
+        // window.lat = lat
+        // window.lng = lng
+    }
+
+    // Event listener for when the window is fully loaded
+    window.addEventListener('load', init);
+</script>
 
 <div class="container location-box col border
 border-secondary-subtle w-75">
-    <label class="text-white text-subhead">
+    <label class="text-subhead">
         Current Location
     </label>
     <div>
-        <label class="text-white text-location geolocation-html-show">
+        <label class="text-location geolocation-html-show">
         緯度
         </label>
-        <label id="current_lat_geo" class="text-white text-location">
+        <!--get script-->
+        <label id="current_lat_geo" class="text-location">
             --.----
+        <!--get request method-->
+            {#     {{ current_lat }}       #}
         </label>
-        <label class="text-white text-location">
+        <label class="text-location">
             経度
         </label>
-        <label id="current_lng_geo" class="text-white text-location">
+
+        <!--get script-->
+        <label id="current_lng_geo" class="text-location">
             ---.----
+
+        <!--get request method-->
+            {#     {{ current_lng }}       #}
         </label>
     </div>
 </div>

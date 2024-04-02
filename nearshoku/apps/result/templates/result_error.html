@@ -1,12 +1,19 @@
 {% extends 'base.html' %}
-{% load static %}
 {% block title %}
     <title>{{ title }}</title>
 {% endblock %}
 
+<!--request by apps.result.views.err_direct-->
 {% block body %}
+    <div class="data">
+        <input type="hidden" value="{{is_selected}}">
+        <input type="hidden" value="{{ is_current }}">
+    </div>
+
     <div class="container text-center">
+    <!--error page contents-->
         <div class="err-msg">
+        <!--Error message section-->
             <h1 class="display-6 lead text-bold text-dark mb-5">
                 {{err_msg}}
             </h1>
@@ -36,6 +43,7 @@
                 </P>
             {% endif %}
         </div>
+        <!--button-->
         <div class="d-flex justify-content-center">
             {% include 'go_back_button.html' %}
         </div>
@@ -50,8 +58,4 @@
      </div>
     <br>
     <br>
-    <div class="data">
-        <input type="hidden" value="{{is_selected}}">
-        <input type="hidden" value="{{ is_current }}">
-    </div>
 {% endblock %}

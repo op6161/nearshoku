@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 {% load static %}
-{#<script src="{% static 'js/index.js' %}"></script>#}
 <html>
 {% include 'head.html' %}
     {% block head %}
-        <!--head area-->
+        <!--head area: Declarations-->
     {% endblock %}
 
     {% block title %}
@@ -22,7 +21,7 @@
             <div class=""></div>
 
             {% block body %}
-                <!--body area-->
+                <!--body area: Contents-->
             {% endblock %}
             <hr class="green-line">
             {% include 'footer.html' %}

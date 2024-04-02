@@ -107,7 +107,13 @@
 }
 .bg-sub{
     /* title bg */
-    background-color: #B4ED69
+    /*background-color: #B4ED69*/
+    background: #FFEEEE;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to top, #DDEFBB, #FFEEEE);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top, #DDEFBB, #FFEEEE); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    box-shadow: 0px 0px 15px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    z-index: -1;
 }
 .bg-detail-main{
     /* result_detail bg */
