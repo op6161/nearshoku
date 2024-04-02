@@ -1,0 +1,146 @@
+/*===== index google map ======*/
+#map{
+    height:300px;
+}
+
+/* ====== fonts ====== */
+.rubik-font {
+  /* title font */
+  font-family: "Rubik Scribble", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+.noto-serif-font {
+    /* thin japanese font */
+  font-family: "Noto Serif JP", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+.noto-sans-jp-900 {
+    /* thick japanese font */
+  font-family: "Noto Sans JP", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}
+
+/* ====== style ====== */
+.detail-access{
+    /* detail access list style */
+    list-style-image: url("../others/direction.svg")
+}
+.clickable{
+    /* object hover pointer change */
+    cursor:pointer;
+}
+
+/*line-style*/
+.pink-line{
+    background:pink;
+    height:1px;
+    border:0;
+}
+.white-line-50{
+    background:pink;
+    height:1px;
+    border:0;
+    width:50%;
+}
+.green-line{
+    background:darkgreen;
+    height:1px;
+    border:0;
+}
+.green-line-50{
+    background:darkgreen;
+    height:1px;
+    border:0;
+    width:55%;
+}
+
+/*====== text-style =====*/
+/* static text size */
+.text-head{
+    font-size:40px;
+}
+.text-subhead{
+
+    font-size:20px;
+}
+
+.text-location{
+    font-size:12px;
+}
+
+.text-footer{
+    font-size: 10px;
+}
+.text-bold{
+    font-weight:bold;
+}
+
+/* margin */
+.no-content{
+    flex: 1 0 auto;
+    width:100%;
+    height:100%;
+}
+.empty-shop-height{
+  height:200px;
+}
+.shop-thumbnail{
+    vertical-align: middle;
+}
+
+/*=====  colors =====*/
+.bg-base{
+    /*background color gradation base*/
+    background: linear-gradient(#FDE8A9, #FEAE50);
+}
+.bg-base-content{
+    /*background color gradation synchronize result_index content*/
+    background: linear-gradient(#fedd97, #feb358);
+}
+.bg-footer-index{
+    /*background color gradation synchronize footer.html*/
+    background: linear-gradient(#feb256, #FEAE50);
+}
+.bg-sub{
+    /* title bg */
+    /*background-color: #B4ED69*/
+    background: #FFEEEE;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to top, #DDEFBB, #FFEEEE);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to top, #DDEFBB, #FFEEEE); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    box-shadow: 0px 0px 15px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    z-index: -1;
+}
+.bg-detail-main{
+    /* result_detail bg */
+    background: linear-gradient(60deg, #FEAE50, #F9D0CD, #E1FADC, #FDE8A9);
+}
+.shop-box:hover{
+    /* result shop-box hover */
+    background-color: #F0DDB2;
+    box-shadow: 5px 5px 10px #F96200;
+    border-radius:8px;
+}
+
+/*===== contents ======*/
+.title-img-container{
+    position:relative;
+}
+.title-img{
+    position: absolute;
+    top:0;
+    left:0;
+}
+.shop-thumbnail{
+    width:69px;
+}
+
+/* dev set */
+.development-in-progress {
+    display: none; /* Hide the content */
+    pointer-events: none; /* Disable pointer events to make the content non-interactive */
+}
