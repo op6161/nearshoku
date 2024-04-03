@@ -15,5 +15,7 @@ EXPOSE 8000
 
 ## gunicorn run server on the port 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "nearshoku.wsgi:application"]
-## django test server
-#CMD ["python", "manage.py", "runsslserver", "--certificate", "django.crt", "--key", "django.key"]
+
+# # # Since the ssl setting, the container created with this image only works in https server
+# # # It can use runserver local with
+# python manage.py runsslserver --certificate django.crt --key django.key

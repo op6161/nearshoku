@@ -15,9 +15,10 @@ SECRET_KEY = djagno_secret_key
 DEBUG = True
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
-    SECURE_SSL_REDIRECT = False
+    SECURE_SSL_REDIRECT = True
 else:
     ALLOWED_HOSTS = ["*"]
+    SECURE_SSL_REDIRECT = True
 
 
 # Application definition
