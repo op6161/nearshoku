@@ -1,5 +1,4 @@
-
-
+# This code is no longer in use this project
 
 def model_form_save(item_list, form_model):
     """
@@ -13,7 +12,7 @@ def model_form_save(item_list, form_model):
     form_model.objects.bulk_create(object_bulk)
 
 
-def make_hash():# 필요없어짐
+def make_hash():
     """
     Make hash key from current time
 
@@ -22,10 +21,6 @@ def make_hash():# 필요없어짐
     import time
     key = time.time_ns()
     return hash(key)
-
-
-
-
 
 
 def get_latlng(api_key):

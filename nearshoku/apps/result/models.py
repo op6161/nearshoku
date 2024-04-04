@@ -11,6 +11,8 @@ class BaseModel(models.Model):
         abstract = True
 
 
+# The project no longer use the database,
+# but now models are used to distinguish the behavior according to the data type.
 class ShopInfoModel(BaseModel):
     """A model-form to save shop info to show on result field"""
     shop_id = models.CharField(max_length=20)

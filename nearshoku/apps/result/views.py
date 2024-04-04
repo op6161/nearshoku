@@ -45,10 +45,15 @@ class _Const(object):
 
     @constant
     def GOOGLE_API():
+        # a .env file data key that saved the google api key
+        # It will be used on 'index' to show the google map(JS) that to select the location
+        # or 'detail' to show the google map(static) that to show the location of restaurant
         return 'GEOLOCATION_API_KEY'
 
     @constant
     def RECRUIT_API():
+        # a .env file data key that saved the hotpepper api key
+        # It will be used to load shop info
         return 'HOTPEPPER_API_KEY'
 
 
@@ -89,33 +94,45 @@ def check_u3000(item, exception=False):
         item: str, list, dict, None: the string(s) that changed from u3000 to space
     """
     if isinstance(item, str):
+        # if item is a string
         return item.replace('\u3000', ' ')
     elif isinstance(item, list):
+        # if item is a list
         temp_list = []
         for text in item:
+            # If exception is True, Export errors if there is a problem with internal elements
             if exception:
                 try:
                     temp_list.append(text.replace('\u3000', ' '))
                 except Exception:
                     raise Exception
+
+            # If exception is False, Ignore errors on internal elements
             else:
                 try:
                     temp_list.append(text.replace('\u3000', ' '))
                 except:
                     temp_key.append(text)
         return templist
+
     elif item is None:
+        # When processing database data
+        # To prevent an error from stopping when there is None data
         return None
+
     elif isinstance(item, dict):
         temp_keys = []
         temp_vals = []
         for key, val in item.items():
+            # If exception is True, Export errors if there is a problem with internal elements
             if exception:
                 try:
                     temp_keys.append(key.replace('\u3000', ' '))
                     temp_vals.append(val.replace('\u3000', ' '))
                 except Exception:
                     raise Exception
+
+            # If exception is False, Ignore errors on internal elements
             else:
                 try:
                     temp_keys.append(key.replace('\u3000', ' '))
@@ -124,8 +141,10 @@ def check_u3000(item, exception=False):
                     temp_keys.append(key)
                     temp_vals.append(val)
         return dict(zip(temp_keys, temp_vals))
+
     else:
-        raise ValueError(f'invalid type{type(item).__name__}')
+        # if item is a invalid type value
+        raise TypeError(f'invalid type{type(item).__name__}')
 
 
 def check_list_has_blank(list_data):
@@ -237,12 +256,19 @@ class InfoProcessor:
             self.info = string
 
         if not isinstance(to_value, str) and to_value is not None:
+            # if to_value is not a None/string
             raise ValueError('to_value must be "str"')
+
         if from_value is not None and not isinstance(from_value, (str, list)):
+            # if from_value is not a None/string/list
             raise ValueError('from_value must be "str" or "list"')
+
         if mode != 'replace' and from_value is None:
+            # if mode is 'replace', it requires from_value
             raise ValueError('split require "from_value" parameter')
+
         if not isinstance(replace_ex, (dict, type(None))):
+            # if replace_ex is not a Dictionary
             raise ValueError('"replace_ex" must be a dict')
 
         self.mode = mode
@@ -257,6 +283,7 @@ class InfoProcessor:
             self.info = self._split()
         elif mode == 'replace':
             self.info = self._replace()
+
         elif mode is None:
             raise ValueError('InfoProcessor requires "mode" parameter')
         else:
@@ -278,16 +305,24 @@ class InfoProcessor:
         mode = self.mode
         from_value = self.from_value
         replace_ex = self.replace_ex
+
+        # If mode is 'replace', 'to_value' will be used just to replace
         to_value = self.to_value
         if mode != 'replace':
+            # If mode is 'split'/'all', 'to_value' will be used to replace and to split too
+            # ';' is a flag to split. It must be replaced if the data already contains ';'.
             to_value = to_value + ';'
 
         if isinstance(from_value, list):
+            # If from_value is a list, it's working normally
             info = self._replace_info(info, from_value, to_value)
         elif isinstance(from_value, str):
+            # If from_value is a str, it must be formulated to a list
+            # (because _replace_info() has for loop in 'from_value' list)
             info = self._replace_info(info, [from_value], to_value)
 
         if replace_ex:
+            # If replace_ex came in
             for first_check, second_check in zip(replace_ex.keys(), replace_ex.values()):
                 info = self._replace_info_exceptions(info, first_check, second_check, to_value)
         return info
@@ -295,18 +330,27 @@ class InfoProcessor:
     def _split(self):
         """Split a given string based on a specified symbol"""
         info = self.info
+        # ';' is a flag to split. It must be replaced if the data already contains ';'.
         info = self._text_split(info, ';')
         return info
 
     def _split_set(self):
         """Check split point when mode is 'split'"""
+        # if mode is 'split', it must set special
+        # splitting need 'to_value' but 'split' mode don't need to_value.
+        # so from_value must be changed to 'to_value'
+        # It's complicated, but I did this for parameter's consistency.
+
         info = self.info
         if isinstance(self.from_value, list):
+            # If 'from_value' is a list
+            # Add flags to all 'from_value' list's variables to split.
             from_value_list = self.from_value
             for from_value in from_value_list:
                 to_value = from_value + ';'
                 info = self._replace_info(info, from_value, to_value)
         else:
+            # If 'from_value' is a string, add flag to split.
             from_value = self.from_value
             to_value = from_value + ';'
             info = self._replace_info(info, from_value, to_value)
@@ -411,6 +455,7 @@ def hot_pepper_api(**kwargs):
         return shop_data, 200
     except KeyError:
         # 'shop' key not found
+        # when occurred no search results
         return None, 404
     except:
         # API Server error
@@ -512,14 +557,16 @@ def result(request):
         Raises:
             ValueError: If the request method is not POST.
 
-
         Returns:
             int: A state code of hot_pepper_api() function
                 - 200: If the API call was successful
                 - others: If there was an error
         """
         if request.method == 'POST':
+            # Delete an existing session
             request.session.flush()
+
+            # Init API params
             range_ = request.POST['range_select']
             order = request.POST['order_select']
             current_lng = request.POST['current_lng']
@@ -535,24 +582,30 @@ def result(request):
                 search_lat = current_lat
                 search_lng = current_lng
 
+            # 'search_by' will use when there are no search results
+            # 'no search result from your location/from you selected'
             if selected_lat:
                 request.session['search_by'] = 'selected'
             else:
                 request.session['search_by'] = 'current'
 
+            # request api
             shop_info_json, api_state = hot_pepper_api(lat=search_lat, lng=search_lng, range=range_, order=order,
                                                        count=100)
 
             if isinstance(shop_info_json, dict):
                 # If hot_pepper_api result is only 1 shop
-                # shop_info_json would be dictionary not dictionaries list
+                # shop_info_json would be dictionary type not dictionaries list
                 # So I need to convert it
                 shop_info_json = [shop_info_json]
 
             if api_state != 200:
+                # API error occurred
                 return api_state
 
             shop_info = info_pack(shop_info_json, SHOP_INFO_MODEL_FORM)
+
+            # Save data to session
             request.session['shop_info'] = shop_info
             return api_state
         else:
@@ -590,12 +643,15 @@ def result(request):
 
     # ----------------------------------------------------------------
 
+    # load saved data in session
     state, page = result_method_check(request)
 
     if state != 200:
+        # loading failed
         return err_direct(request, state)
 
     elif request.method == 'POST':
+        # POST Redirect GET to prevent POST redirecting error
         return redirect('result')
 
     else:  # request.method == 'GET'
@@ -604,14 +660,19 @@ def result(request):
         paginator = Paginator(shop_list, PAGING_POST_NUMBER)
 
         try:
-            page_object = paginator.page(page)
-        except PageNotAnInteger:
-            page = 1
+            # Normal operation
             page_object = paginator.page(page)
         except EmptyPage:
+            # page is empty (if ?page=99999)
             page = paginator.num_pages
             page_object = paginator.page(page)
+        except PageNotAnInteger:
+            # page is not an integer
+            # (and post-redirect-get)
+            page = 1
+            page_object = paginator.page(page)
         except:
+            # Direction is incorrect
             return err_direct(request, 400)
 
         contexts = {
@@ -644,13 +705,16 @@ def detail(request):
         shop_id = request.GET.get('shop_id')
 
         if shop_id is None:
+            # Direction is incorrect
             return err_direct(request, 400)
 
         detail_info_json, state = hot_pepper_api(id=shop_id)
 
         if state != 200:
+            # API error
             return err_direct(request, state)
         else:
+            # Normal operation
             detail_info = info_pack([detail_info_json], SHOP_DETAIL_MODEL_FORM)
             contexts = detail_info[0]
             return render(request, 'result_detail.html', contexts)
@@ -721,6 +785,9 @@ def info_pack(info_json, model_form):
                                            from_value=from_value,
                                            replace_ex=replace_ex,
                                            unicode_check=unicode_check, )
+
+            # if the data includes '', it will be replaced a new line.
+            # so it must be deleted
             if isinstance(key, list):
                 temp_shop[key[0]][key[1]] = check_list_has_blank(info_processor.result)
             else:
@@ -767,12 +834,24 @@ def info_pack(info_json, model_form):
                 list[dict]: A list of dictionaries with processed special case data.
             """
         shop = info_json[0]
+
+        # a flag to split lines
+        # it will replace to green-line in Templates
         flag = '§'
         temp_time = []
 
+        # ['月: ', '10:30~12:30', '火: ', '11:00~13:30'] > ['月: ', '§', '10:30~12:30', '火: ', '§', '11:00~13:30']
+        # Then the page appears like this
+        # 月:
+        # ----
+        # 10:30~12:30
+        # 火:
+        # ----
+        # 11:00~13:30
+
         for idx, open_time in enumerate(shop['open']):
             if open_time[0] in ['月', '火', '水', '木', '金',
-                                '金', '土', '日', '祝'] and idx != 0:
+                                '金', '土', '日', '祝'] and idx != 0:  # Don't add flag to the first line
                 temp_time.append(flag)
             temp_time.append(open_time)
         shop['open'] = ';'.join(temp_time)
@@ -783,6 +862,8 @@ def info_pack(info_json, model_form):
     info_package = []
 
     # detail/shop both preprocessing ---------------------------------
+
+    # split accesses to show several lines
     info_json = use_info_processor(info_json, mode='all',
                                    key='access',
                                    to_value='分',
@@ -790,13 +871,14 @@ def info_pack(info_json, model_form):
                                                '分、', '分』', '分！', '分♪'],
                                    replace_ex={'分!!': '分!'})
 
-    # case: shop_id=J000638173
+    # special case: shop_id=J000638173
     info_json = use_info_processor(info_json,
                                    key='access',
                                    from_value='◇',
                                    to_value=';',
                                    mode='all')
 
+    # Split long genre into two lines
     info_json = use_info_processor(info_json,
                                    key=['genre', 'name'],
                                    mode='all',
@@ -813,6 +895,7 @@ def info_pack(info_json, model_form):
                                               ':301': ':30、1', ':001': ':00、1'})
 
         # case shop_id=J003433085
+        # ':30月' > ':30','月'
         info_json = use_replace(info_json,
                                 key='open',
                                 from_to_dict={":30月": ":30;月",
@@ -828,18 +911,26 @@ def info_pack(info_json, model_form):
                                               ":30土": ":30;土",
                                               ":00土": ":00;土",
                                               ":30日": ":30;日",
-                                              ":00日": ":00;日"})
+                                              ":00日": ":00;日",
+                                              }
+                                )
 
         info_json = use_info_processor(info_json,
                                        key='open',
                                        mode='split',
                                        from_value='）')
 
+        # To split 'open' with <hr class='green-line'>
         info_json = special_1_processing(info_json)
+
+        # To change ':\n' if ': ' found
+        # It's this format when data 'open' shows the time of day
+        # ['月: 10:30~12:30火: 11:00~13:30']
+        # So, this code will make 'open' to be divided into several lines
+        # like ['月: ', '10:30~12:30', '火: ', '11:00~13:30']
         info_json = use_replace(info_json,
                                 key='open',
                                 from_to_dict={": ": ":;"})
-
         info_json = use_info_processor(info_json,
                                        key='open',
                                        mode='split',

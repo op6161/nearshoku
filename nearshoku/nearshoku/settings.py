@@ -12,7 +12,7 @@ SECRET_KEY = djagno_secret_key
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
     SECURE_SSL_REDIRECT = True

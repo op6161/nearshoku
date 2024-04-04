@@ -10,6 +10,10 @@
             {% for shop in page_object %}
                 <form method="get" action='detail' name="shop-form-{{forloop.counter}}">
                 <!-- form to send data to detail -->
+                    <div class="data-container">
+                        <!--form data-->
+                        <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
+                    </div>
                     <div class="container shop-box" id="shop-div-{{forloop.counter}}" onclick="document.forms['shop-form-{{forloop.counter}}'].submit();">
                     <!--shop box-->
                         <br>
@@ -66,10 +70,6 @@
                         <!--shop box bottom end-->
                         </div>
                         <br>
-                        <div class="data-container">
-                        <!--form data-->
-                            <input type="hidden" name="shop_id" value="{{shop.shop_id}}">
-                        </div>
                     <!--end shop box-->
                     </div>
                 <!--end form-->
