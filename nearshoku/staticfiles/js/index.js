@@ -15,10 +15,20 @@ function initMap() {
         let latlng = await new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
 
         // Create a GoogleMap object centered at current position
-        const map = await new google.maps.Map(document.getElementById("map"), {center: latlng, zoom: 13,});
+        const map = await new google.maps.Map(document.getElementById("map"), {
+            center: latlng,
+            zoom: 13,
+
+            // Add code to replace Marker to AdvancedMarkerElemnt
+            mapId: "DEMO_MAP_ID", // Map ID is required for advanced markers.
+            // It must be a new mapID on production
+            // https://developers.google.com/maps/documentation/javascript/advanced-markers/start
+        });
 
         // Create a Marker at current position on GoogleMap
-        let marker = await new google.maps.Marker({position: latlng, map: map,});
+        // It replaced from google.maps.Marker
+        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker")
+        let marker = await new google.maps.marker.AdvancedMarkerElement({position: latlng, map: map,});
 
         /**
         * Set the current location data to sent to views
@@ -53,9 +63,10 @@ function initMap() {
          * @param {google.maps.Map} map - The google.maps.Map object
          */
         function placeMarkerAndPanTo(latLng, map) {
-            // set marker on clicked
-            marker = new google.maps.Marker({position: latLng, map: map,});
-            // move screen to set marker
+            // Set marker on clicked
+            // It replaced from google.maps.Marker
+            marker = new google.maps.marker.AdvancedMarkerElement({position: latLng, map: map,});
+            // Move screen to set marker
             map.panTo(latLng);
         }
 
