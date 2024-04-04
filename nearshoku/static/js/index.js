@@ -83,7 +83,7 @@ function initMap() {
             $("#selected_lng").val(lng);
             // active search-by-selected-location submit button
             $("#submitSelectedLocation").attr('disabled',false);
-            $("#submitSelectedLocation").text("Search By Selected Location");
+            $("#submitSelectedLocation").text("地図で選択した場所から検索");
         }
     })
 }
