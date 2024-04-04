@@ -63,7 +63,10 @@
                     <!-- select range -->
                     <select name="range_select"
                             class="form-select select-picker" data-style="btn-primary">
-                        <option selected value="1">Searching Range from your location</option>
+                        <option selected value="1">
+                            探索範囲を指定(デフォルトち300m)
+{#                            Searching Range from your location#}
+                        </option>
                         <option value="1">300m以内</option>
                         <option value="2">500m以内</option>
                         <option value="3">1km以内</option>
@@ -105,7 +108,8 @@
                                 class="btn btn-secondary"
                                 id="submitCurrentLocation"
                                 name="submitCurrentLocation">
-                            search by current location
+                            現在地から検索
+{#                            search by current location#}
                         </button>
                     </div>
                     <div class="col">
@@ -116,7 +120,8 @@
                                 name="submitSelectedLocation"
                                 value="True"
                                 disabled>
-                            Select Location First From Map
+                            地図で選択した場所から検索
+{#                            Select Location First From Map#}
                         </button>
                     </div>
                 <!--end form submit buttons-->
@@ -125,7 +130,12 @@
             </div>
         <!--end search form-->
         </form>
-
+        <hr class="green-line">
+        <div class="noto-serif-font">
+            指定された条件によって
+            <br>
+            最大 100 のレストランを検索します
+        </div>
         <!--margin-->
         <br>
         <br>
